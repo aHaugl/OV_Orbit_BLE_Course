@@ -4,7 +4,7 @@
 **Prerequisites:** 
 * Make sure that you have a laptop with OS preferably within Tier 1 support range from the supported OS matrix found at https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/recommended_versions.html. From previous years we've spent quite a lot of time on day one on debugging various arcane OS's that has a varying degree of support for the SDK to ensure more time for the actual hands on part of the course.
 
-* Read through the fist lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/
+* Read through the first lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/
 
 * Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.5.1. You will also find the required SW components listed under the SW Requirements section
 
@@ -41,5 +41,12 @@ All resources will be available in this public repository after the course has e
 
 # Tutorial Steps
 ### Step 1 - Getting started
-If you haven't managed to successfully set up the SDK by following the steps in the prerequisites then the first step is to do so. If you've already succeeded in this, please feel free to have a sneak peek at Step 2 and/or to assist the person next to you
+If you didn't set up the SDK and toolchain by following the steps in the prerequisites then the first item on the agenda is to do this. If you've already succeeded in this, please feel free to have a sneak peek at Step 2 and/or to assist the person next to you
 
+The first step may take some time since you will both download and install both the SDK and Toolchain which is of some size. While waiting 
+* Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.5.1
+
+While waiting for the installation downloading you can have a look at the first lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/. This lesson explains how the SDK is set up
+
+
+* If you're able to do excersize 1 in lesson 1, you can also do lesson 2 to familiarize yourself a bit with how to build and flash a sample that comes with the SDK. Do note that unless you already have a development kit from Nordic available that is supported in nRF Connect SDK you won't be able to flash the firmware to the DK, but it's good that you've gotten to this part once before the course
