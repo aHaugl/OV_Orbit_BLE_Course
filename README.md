@@ -49,6 +49,8 @@ Academy NCS Fundamentals exercise 1 steps |
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.1.PNG" width="1000"> |
 
+</br>
+
 In a Windows installation I recommend that you install the SDK and toolchain close to C:/ in for instance C:/Nordic/ncs. Installing it close to C ensures that you don't run into any "Windows path length" issues. The path may of course vary with your OS
 
 While waiting for the installation downloading you can have a look at the first lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/. This section of text explains how the SDK is set up and which repositories it consists of and briefly mentions how the build system works.
@@ -62,10 +64,14 @@ Setup Application from Sample 1/3 |
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.2.PNG" width="1000"> |
 
+</br>
+
 * Search for "Hello world" and select the sample from zephyr/samples/hello_world
 Setup Application from Sample 2/3 | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.3.PNG" width="1000"> |
+
+</br>
 
 * Select a folder for your application
 
@@ -75,6 +81,8 @@ Setup Application from Sample 3/3 |
 ------------ |
 
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.4.PNG" width="1000"> |
+</br>
+
 Verify SDK and toolchain version and build your firmware | 
 ------------ |
 * Verify that the toolchain and SDK matches (both should be version 2.5.1). 
@@ -84,11 +92,16 @@ Verify SDK and toolchain version and build your firmware |
 * Press "Build Configuration"
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.5.PNG" width="1000"> |
 
+</br>
+
+
 If your build was successfull you should now be able to program your DK. Connect the micro-usb to your computer and the port on the short side of the board, select your build and select the Flash action
 
 Flash your firmware to the board | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.6.PNG" width="1000"> |
+
+</br>
 
 You should now be able to connect your board to a serial terminal. You can use the built in terminal in the extension as shown in the image below, or any other preferred serial temrinal such as Putty, Termite or other.
 
@@ -96,7 +109,11 @@ Connect your board to a terminal and observe the output 1/2 |
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.7.PNG" width="1000"> |
 
+</br>
+
 Connect your board to a terminal and observe the output 2/2 | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.8.PNG" width="1000"> |
+
+</br>
 
