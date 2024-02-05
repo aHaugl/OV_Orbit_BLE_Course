@@ -312,3 +312,63 @@ int main(void)
 }
 
 ```
+
+### Step 3 - Motor Control
+The motor that we used is the Tower Pro MG90S. You can find a very simple datasheet [here](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf). For some background information on how PWM motors work, you can check out [this guide](https://www.jameco.com/Jameco/workshop/Howitworks/how-servo-motors-work.html), and these two samples in [this PWM sample repository](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm). We will do our implementation in this exercize similarly to what is done in the second exercise in the PWM repository mentioned.
+
+Basically, we want to output a PWM signal, and the duty cycle of the PWM signal determines what angle/position the rotor will maintain. In our case, the motor wants a duty cycle between 1 and 2 ms, and a PWM period of 20ms. 
+
+Because we want to keep main.c as clutter free as possible, we will try to do most of the PWM configurations and handling in another file, and implement some simple functions that we can call from main.c. Therefore we will add a couple of custom files. Inside your application folder (probably called `remote_controller`, you should see a folder named `src`. Inside this you will see your main.c file. Start by creating a new folder next to main.c called `custom_files`. You can either do this from Visual Studio Code, or you can do it from your Operative System's file explorer. Inside that folder, create two new files: `motor_control.h` and `motor_control.c`. To include these two files to your project, open `CMakeLists.txt` in Visual Studio Code and add the following
+</br>
+```C
+# Custom files and folders
+
+target_sources(app PRIVATE
+    src/custom_files/motor_control.c
+)
+
+zephyr_library_include_directories(src/custom_files)
+```
+
+The line pointing to the `motor_control.c` file will include this .c file to your application project. The last line pointing to the folder `src/custom_files` will add that folder to the list of folders where the compiler will look for header files (.h files). 
+
+If everything is done as intended, the project should compile, and we should be able to see our motor_control.c in our application tree as well as shown below. 
+
+Application Tree | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.1.png" width="1000"> |
+
+<br>
+
+Open `motor_control.c` and start by adding this line to the very top:
+
+```C
+#include "motor_control.h"
+```
+
+Open `motor_control.h` and add:
+```C
+#include <zephyr.h>
+#include <zephyr/logging/log.h>
+```
+
+**Challenge:** </br>
+Try to create a function called `motor_init()` inside your `motor_control.c` file, that you also need to declare in `motor_control.h` file. Make the function return 0 (int), and check the return value of this function after you call it from your `main()` function. Add whatever that is needed in these two files so that you can use this function to print "*Initializing motor control.*" to our log. Remember to include `motor_control.h` from your `main.c` file.
+</br>
+*Hint: Give `motor_control.c` another log module name, so that it is easy to see from what file the log messages are coming from. Initialize the log module from `motor_control.c` pretty much the same way that you did in `main.c`.*
+</br>
+
+Build and flash your new firmware. What you should see as output is the same as in step 1 with the addition of a Log message from `motor_init()` from `motor_control.c` stating that you've initialized motor control.
+
+Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
+
+
+**PWM control**
+<br>
+In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through
+
+If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
+
+**Method 1 - Enable the PWM module and use it to drive a GPIO connected to a LED**
+
+

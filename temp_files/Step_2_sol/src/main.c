@@ -65,7 +65,6 @@ int main(void)
 	LOG_INF("Hello World! %s\n", CONFIG_BOARD);
 
 	configure_dk_buttons_and_leds();
-	motor_init();
 
 	for(;;){
 		dk_set_led(RUN_STATUS_LED,(blink_status++)%2);
