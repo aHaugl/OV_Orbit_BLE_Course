@@ -60,6 +60,7 @@ We're now ready to create an application. The following steps will be similar to
 * Open the VS Code extension for NCS in VS Code
 * Click "Create new application"
 * Select "Copy a sample" from the list
+
 Setup Application from Sample 1/3 | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.2.png" width="1000"> |
@@ -67,6 +68,7 @@ Setup Application from Sample 1/3 |
 </br>
 
 * Search for "Hello world" and select the sample from zephyr/samples/hello_world
+
 Setup Application from Sample 2/3 | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.3.png" width="1000"> |
