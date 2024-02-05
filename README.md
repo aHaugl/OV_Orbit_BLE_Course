@@ -81,17 +81,19 @@ I recommend that you create your projects folder outside of the SDK and toolchai
 
 Setup Application from Sample 3/3 | 
 ------------ |
-
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.4.png" width="1000"> |
+
 </br>
 
-Verify SDK and toolchain version and build your firmware | 
------------- |
+
 * Verify that the toolchain and SDK matches (both should be version 2.5.1). 
 * Create a new build configuration
 * Select your board which is the nRF52840dk_nrf52840 
 * Leave everything else as default
 * Press "Build Configuration"
+
+Verify SDK and toolchain version and build your firmware | 
+------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.5.png" width="1000"> |
 
 </br>
