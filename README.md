@@ -107,7 +107,12 @@ Flash your firmware to the board |
 
 </br>
 
-You should now be able to connect your board to a serial terminal. You can use the built in terminal in the extension as shown in the image below, or any other preferred serial temrinal such as Putty, Termite or other.
+You should now be able to connect your board to a serial terminal. You can use the built in terminal in the extension as shown in the image below, or any other preferred serial temrinal such as Putty, Termite or other. Do the following:
+
+* Expand the list of connected devices and the device number matching your board
+* Select the COMPORT and click the plug-icon
+
+A popup will come up with some UART settings. Select *115200 8n1*, and open the terminal
 
 Connect your board to a terminal and observe the output 1/2 | 
 ------------ |
@@ -115,9 +120,95 @@ Connect your board to a terminal and observe the output 1/2 |
 
 </br>
 
+When you have connected your COMPORT to the terminal, press the reset button on the board and observe the following output
+
 Connect your board to a terminal and observe the output 2/2 | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.8.png" width="1000"> |
 
 </br>
 
+We've now built and flashed our application. If you at an later point in time forget how you built or flash your application you can go back to these steps and repeat them. We will be using this procedure repeatedly throughout the hands on exercise.
+
+
+### Step 2 - Enabling some basic application features
+Congratulations! You have built and flashed our first application. Let's move on by doing some minor modifications. If you explore some of the samples from the *nrf* folder in NCS, you'll see that most of them use our logging module, which is what we will use as well. In order to do so, please replace the line `#include <sys/printk.h>` with `#include <zephyr/logging/log.h>`. In order to use the log module, we need to add a few things in the prj.conf file. You will find it from the application tab (called remote_controller if you didn't change it) -> Input files -> prj.conf. At this point, it should just say `#nothing here`.
+</br>
+
+Open your prj.conf | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step2.1.png" width="1000"> |
+
+</br> 
+
+Add the following:
+
+```
+# Configure logger
+CONFIG_LOG=y
+CONFIG_USE_SEGGER_RTT=n
+CONFIG_LOG_BACKEND_UART=y
+CONFIG_LOG_DEFAULT_LEVEL=3
+```
+They are quite self explaining, but what we are doing here is enabling the log module, deselecting the default RTT backend, selecting the UART backend, and setting the log level to 3 (INFO).
+Back in main.c, try replacing the printk() with LOG_INF(); and add the following snippet before void main(void)
+
+```C
+#define LOG_MODULE_NAME app
+LOG_MODULE_REGISTER(LOG_MODULE_NAME);
+```
+
+Compile and flash the application again, and you should see that it still prints over UART, but now we are using the log module instead of the printk module.
+
+</br>
+
+#### Configure buttons and LEDs
+Before we start adding Bluetooth, we want to set up some LEDs that we can use to indicate that our application is still running, and hasn't crashed. We also want to set up some buttons that we can use later to trigger certain BLE calls.
+Start by including `<dk_buttons_and_leds.h>` in your main.c file.
+
+Next, create a function to initiate the LEDs and buttons. I will call mine 'static void configure_dk_buttons_and_leds(void)'. The first thing we need to do in this function is to enable the LEDs. From the documentation page for DK buttons and LEDS (or by right clicking `#include <dk_buttons_and_leds.h>` and selecting "Go to definition") we can also see two important functions to initialize LEDS and buttons, one of them beeing dk_leds_init().
+
+Try adding `dk_leds_init()` to your configure_dk_buttons_leds() function. Since this function returns and int, we would like to check the return value. 
+
+
+```C
+	int err;
+	err = dk_leds_init();
+	if(err){
+		LOG_ERR("Couldn't init LEDS (err %d)", err);
+	}
+```
+<br>
+
+You may see that if you try to compile the sample after adding a function from the `dk_buttons_and_leds.h`, it will fail. The reason for this is that while we included the `dk_buttons_and_leds.h`, we didn't include the dk_buttons_and_leds.c file yet. This means that the compiler will not find the definitions of the functions that the header file claims that we have. We need to tell our application how to add the `dk_buttons_and_leds.c` file. There are two ways of doing this. If you create your own files, you can add them manually, which we will do later for some custom files. But for now we want to add a file that belongs to NCS, and therefore we include it using configuration switches.
+
+From the DK buttons and LEDs documentation page https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that `CONFIG_DK_LIBRARY` also selects another configuration which we will use: `CONFIG_GPIO`
+https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY
+
+<br>
+
+To `prj.conf` add: 
+```
+# Configure buttons and LEDs.
+CONFIG_DK_LIBRARY=y
+```
+
+This snippet will enable the GPIOs and include the DK library. The way this is done in NCS/Zephyr is a bit complex. If you are interrested in how this works, you can look into the CMakeLists.txt file found in NCS\nrf\lib\CMakeLists.txt, and see how it includes files and folders based on the configurations. For now we will accept that this is just how it works.
+
+<br>
+
+Now we've enabled and initialized our LEDs, so lets do some blinking. Under https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#api-documentation you can see some masks that you can use as macros for various peripherals connected to various GPIOs on the SoC on the board, among them [DK_LED1](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#c.DK_LED1). Which GPIO these definitions are connected to will be different on different boards (such as a nRF52840DK and a nRF5340DK), and we will at a later point look closer into how you can configure which GPIO which is connected to what device definition. For now we will leave it as it is.
+
+Near the top of main.c add a specific LED and a blinking interval:
+
+```C
+#define RUN_STATUS_LED DK_LED1
+#define RUN_LED_BLINK_INTERVAL 1000
+```
+
+Open `dk_buttons_and_leds.h` or the [DK buttons and LEDS library API page](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#dk-buttons-and-leds) to see if there is any ways you can turn on and off this LED from your main function. Our goal is to toggle the LED in a `for(;;)` loop (equivalent to a while(true) loop). There are several ways to do this. Try to find one that works. </br>
+*Hint: You can use k_sleep() to wait a given amount of time, and there is a macro called K_MSEC() that takes an input of ms, and converts it to ticks. To use k_sleep you will need to add `#include <zephyr/kernel.h>` to the top of main.c*
+
+Now build and flash your firmware. If you've done everything "as intended" you should now see that LED1 toggles on and off with a 1 sec interval.
+
+</br>
