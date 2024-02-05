@@ -14,7 +14,7 @@ Many of you will run into issues during installation, and thats fine. It's typic
 
 For all three days we will have a set of Nordic engineers available in the auditorium for questions related to errors, the hands on exercises and anything related to Nordic Semiconductor that you think we might be able to give an answer to.
 
-</br></br>
+</br>
 
 # HW requirements
 - nRF52840 Development Kit. 
@@ -128,7 +128,7 @@ Connect your board to a terminal and observe the output 2/2 |
 
 </br>
 
-We've now built and flashed our application. If you at an later point in time forget how you built or flash your application you can go back to these steps and repeat them. We will be using this procedure repeatedly throughout the hands on exercise.
+If you at an later point in time forget how you built or flash your application you can go back to these steps and repeat them. We will be using this procedure repeatedly throughout the hands on exercise.
 
 
 ### Step 2 - Enabling some basic application features
@@ -209,6 +209,106 @@ Near the top of main.c add a specific LED and a blinking interval:
 Open `dk_buttons_and_leds.h` or the [DK buttons and LEDS library API page](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#dk-buttons-and-leds) to see if there is any ways you can turn on and off this LED from your main function. Our goal is to toggle the LED in a `for(;;)` loop (equivalent to a while(true) loop). There are several ways to do this. Try to find one that works. </br>
 *Hint: You can use k_sleep() to wait a given amount of time, and there is a macro called K_MSEC() that takes an input of ms, and converts it to ticks. To use k_sleep you will need to add `#include <zephyr/kernel.h>` to the top of main.c*
 
-Now build and flash your firmware. If you've done everything "as intended" you should now see that LED1 toggles on and off with a 1 sec interval.
+Build and flash your firmware. If you've done everything "as intended" you should now see that LED1 toggles on and off with a 1 sec interval.
 
 </br>
+Now, let us look for a function that can enable the buttons in the `dk_buttons_and_leds.h` file or [Library API](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html). Remember to check the return value of the button init function. When you have a button handler set up, try to use it to print something in the log, so that we can see that it triggers correctly. We can tweak the button handler later.
+</br>
+
+*Hint: As this function initializes our buttons, it has an input parameter which is a callback handler. Use the "Go to definition" on the button handler type to see what kind of callback function it expects. If the button handler type that is expected is defined like this:* 
+
+```C
+typedef void (*callback_handler)(uint8_t first_parameter, uint16_t second_parameter);
+```
+
+*it means that you can define your callback e.g. like this:*
+
+```C
+void my_callback_function(uint8_t my_8_bit_parameter, uint16_t my_16_bit_parameter)
+```
+*You would probably choose some different names for the function and the parameters, but this is an example on how to interpret the callback typedefs.*
+
+</br>
+
+ **Challenge:** </br>
+***Without peeking at the solution below, try to implement your button handler so that it stores the button number of the button that was pressed, and prints it in the log only when the button was pressed (and not released). Try printing out the parameters `button_state` and `has_changed` to see what they look like when you press the buttons. The library we're using contains a [button_handler callback function](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#c.button_handler_t) that can be used***
+</br>
+At this point, your main.c file should look something like this. You can use this as a template if you got stuck somewhere before this point:
+
+```C
+/*
+ * Copyright (c) 2012-2014 Wind River Systems, Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <stdio.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+
+#include <dk_buttons_and_leds.h>
+
+#define LOG_MODULE_NAME app
+LOG_MODULE_REGISTER(LOG_MODULE_NAME);
+
+#define RUN_STATUS_LED DK_LED1
+#define RUN_LED_BLINK_INTERVAL 1000
+
+/* Callbacks */
+void button_handler(uint32_t button_state, uint32_t has_changed)
+{
+	int button_pressed = 0;
+	if (has_changed & button_state)
+	{
+		switch (has_changed)
+		{
+			case DK_BTN1_MSK:
+				button_pressed = 1;
+				break;
+			case DK_BTN2_MSK:
+				button_pressed = 2;
+				break;
+			case DK_BTN3_MSK:
+				button_pressed = 3;
+				break;
+			case DK_BTN4_MSK:
+				button_pressed = 4;
+				break;
+			default:
+				break;
+		}
+		LOG_INF("Button %d pressed.", button_pressed);
+	}
+}
+
+/* Configurations */
+static void configure_dk_buttons_and_leds(void){
+	int err;
+
+	err = dk_leds_init();
+	if(err){
+		LOG_ERR("Couldn't init LEDS (err %d)", err);
+	}
+	
+    err = dk_buttons_init(button_handler);
+    if (err) {
+        LOG_ERR("Couldn't init buttons (err %d)", err);
+    }
+}
+
+/* Main */
+int main(void)
+{
+	int blink_status = 0;
+	LOG_INF("Hello World! %s\n", CONFIG_BOARD);
+
+	configure_dk_buttons_and_leds();
+
+	for(;;){
+		dk_set_led(RUN_STATUS_LED,(blink_status++)%2);
+		k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
+	}
+	return 0;
+}
+
+```
