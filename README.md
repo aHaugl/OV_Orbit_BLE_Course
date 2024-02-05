@@ -47,7 +47,7 @@ The first step may take some time since you will both download and install both 
 Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.5.1
 Academy NCS Fundamentals exercise 1 steps | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.1.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.1.PNG" width="1000"> |
 
 In a Windows installation I recommend that you install the SDK and toolchain close to C:/ in for instance C:/Nordic/ncs. Installing it close to C ensures that you don't run into any "Windows path length" issues. The path may of course vary with your OS
 
@@ -60,12 +60,12 @@ We're now ready to create an application. The following steps will be similar to
 * Select "Copy a sample" from the list
 Setup Application from Sample 1/3 | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.2.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.2.PNG" width="1000"> |
 
 * Search for "Hello world" and select the sample from zephyr/samples/hello_world
 Setup Application from Sample 2/3 | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.3.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.3.PNG" width="1000"> |
 
 * Select a folder for your application
 
@@ -74,7 +74,7 @@ I recommend that you create your projects folder outside of the SDK and toolchai
 Setup Application from Sample 3/3 | 
 ------------ |
 
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.4.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.4.PNG" width="1000"> |
 Verify SDK and toolchain version and build your firmware | 
 ------------ |
 * Verify that the toolchain and SDK matches (both should be version 2.5.1). 
@@ -82,21 +82,21 @@ Verify SDK and toolchain version and build your firmware |
 * Select your board which is the nRF52840dk_nrf52840 
 * Leave everything else as default
 * Press "Build Configuration"
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.5.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.5.PNG" width="1000"> |
 
 If your build was successfull you should now be able to program your DK. Connect the micro-usb to your computer and the port on the short side of the board, select your build and select the Flash action
 
 Flash your firmware to the board | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.6.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.6.PNG" width="1000"> |
 
 You should now be able to connect your board to a serial terminal. You can use the built in terminal in the extension as shown in the image below, or any other preferred serial temrinal such as Putty, Termite or other.
 
 Connect your board to a terminal and observe the output 1/2 | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.7.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.7.PNG" width="1000"> |
 
 Connect your board to a terminal and observe the output 2/2 | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.8.PNG" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/images/Step1.8.PNG" width="1000"> |
 
