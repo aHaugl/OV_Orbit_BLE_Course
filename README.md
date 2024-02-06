@@ -363,12 +363,294 @@ Build and flash your new firmware. What you should see as output is the same as 
 Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
 
 
-**PWM control**
+### PWM control
 <br>
 In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through
 
 If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
 
-**Method 1 - Enable the PWM module and use it to drive a GPIO connected to a LED**
+We will divide this into three parts.
+* The first part will cover the common sections used in both method 1 and method 2
+* The second part will show how we can use the PWM module to drive a LED and make it blink using the PWM duty cycle
+* The third part will show you how to create a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
+
+When we are using the nRF Connect SDK, we have several driver options to control the PWM. We have our own drivers that are tailored for the Nordic Semiconductor devices, or we can use Zephyr's drivers, which will use Nordic's drivers "underneath the hood". For this course we will use Zephyr's PWM drivers. 
+
+Let us start by adding some configurations to our prj.conf file:
+
+**Enable the zephyr PWM driver**
+```C
+# PWM
+CONFIG_PWM=y
+CONFIG_PWM_LOG_LEVEL_DBG=y
+```
+
+What we are doig here is that we enable the PWM in our project, so that we can use it to control our motor. We will continue by adding the pwm header file near the top of `motor_control.h`. `motor_control.c` will inherit this, as long as it includes `motor_control.h`. Add near the top of motor_control.h:
+
+```C
+#include <zephyr/drivers/pwm.h>
+```
+The beauty of Zephyr drivers is that once we have enabled them through configurations in our prj.conf file, it will automagically be enabled and ready for use. 
+
+Every nRF SoC has a set of peripherals available and every DK based on a nRF SoC has a set of predefined devices available. The nRF52840DK has among them multiple predefined PWM modules and one of them is the pwm_led that we can use to verify that we've set up our PWM module correctly. 
+
+Under the devicetree tab in your applicaiton tree you can see the devicetree used for the current build. This board is selected from the list of boards found in [sdk_version/zephyr/boards/arm](https://github.com/nrfconnect/sdk-zephyr/tree/main/boards/arm), which is the nrf52840dk_nrf52840.dts in our case. 
+
+Application Tree Devicetree | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.2.png" width="1000"> |
+
+<br>
+
+Select the .dts for the nrf52840dk and open it, either in VSCode through the extension, locally in the SDK folder or on [github](https://github.com/nrfconnect/sdk-zephyr/blob/main/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts). What you should see is this file:
+
+nrf52840dk_nrf52840.dts | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.3.png" width="1000"> |
+
+If you scroll through this .dts file you can see the predefined devices that are on the DK, and among are the buttons we've used in our button handler and the [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53) which we will use to check if we've set up the PWM module properly: 
+
+```
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+		};
+	};
+```
+Briefly explained, this is a device of the compatible type '[pwm-led](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)', it has an alias, 'pwm_led0', and a name 'pwm_led_0'. It uses the 'pwms'-type instance which in this case is instance 0, has a duty cycle of 20 ms and inverted polarity. In method 2 we will create our own device similarly to how this binding has been created.
+
+Throughout the two next sections we will be using this the 
+), so keep this ready in addition to the .dts file.
+
+<br>
+
+## Method 1 - Use the PWM module to drive a LED
+The first objective is to define and fetch this device from the .dts file into our .c files. We will do this using the [Devicetree API](https://docs.zephyrproject.org/latest/build/dts/api/api.html#devicetree-api) and the [PWM API documentation](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html).
+
+Under [node intentifiers and helpers](https://docs.zephyrproject.org/latest/build/dts/api/api.html#node-identifiers-and-helpers) you can find that there are various identifiers such as `DT_PATH()`, `DT_NODELABEL()`, `DT_ALIAS()`, and `DT_INST()`, and I mentioned that the pwmleds instance had an alias. Use `DT_ALIAS()` to define a PWM_LED0 device by adding the following near the top of main.c
+
+```C
+#define PWM_LED0	DT_ALIAS(pwm_led0)
+```
+
+<br> 
+
+The next we want to do is to initialize this device with some properties using [PWM_DT_SPEC_GET](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html#c.PWM_DT_SPEC_GET).
+
+Near the top, but after the PWM_LED0 definition in motor_control.c initialize and populate your device with the parameters from the .dts file:
+
+```C
+static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
+```
+
+*Just for information, this is equivalent to:
+```C
+static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
+```
+or to [PWM_DT_SPEC_GET_BY_NAME(node_id, name)](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html#c.PWM_DT_SPEC_GET_BY_NAME) given that your device has a name*
+
+<\br>
+
+Next we want to check that our PWM channel is ready when this part of the code is reached. Add these lines to your `motor_init()` function:
+
+```C
+    if (!device_is_ready(pwm_led0.dev)) {
+    LOG_ERR("Error: PWM device %s is not ready",
+            pwm_led0.dev->name);
+    return -EBUSY;
+	}
+```
+
+<br>
+
+**Short background:** The way that PWM works is that it is a counter counting from 0 up to a `PWM period`. It starts with the PWM pin being high, and when it reaches a certain value called the `PWM duty cycle` the PWM signal will go low. When the counter reaches PWM period, the PWM pin will reset to high. See the figure from our servo motor specification:
+
+PWM Period and PWM Duty Cycle | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
+
+
+**Challenge:** Before we connect our motor, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open pwm.h (ctrl + p, and search for pwm.h), and look at the description for pwm_set_dt(). Looking at our servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), we see that we should have a period of 20ms, and a duty cycle between 1 and 2 ms. Try to set a PWM signal of 1.5ms, with a period of 20ms. 
+
+*Hint: the `spec` parameter is our pwm_led0. Since it requires a pointer, you need to use `&pwm_led0` when you use it in pwm_set_dt().*
+
+If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK. That is good and all, but we originally used LED1 for something else (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
+
+This is how my motor_control.c looks after this step:
+
+
+## Overlay Files
+As mentioned earlier all boards defined in Zephyr have their own board files containing all the information about the predefined devices on the board such as GPIOs, LEDs, pwm instances and their default configuration. We can make changes to the device tree files to change e.g what pins are used for LEDs, but making changes directly to a .dts file will cause *every other project that uses these board files to also use the same configuration*. So to keep a good project-to-code-base-separation we will be using overlay files instead.
+
+
+An overlay file is as the name implies: A file that lays itself over the top of the device tree or project configurations and is tailored to this specific type of device. The way that it works is that the compiler will first read the board file (.dts file), and then it will look for an overlay file. If it finds one, then all the settings found in the .overlay file will overwrite the default settings from the .dts file, but only for the current project. This way we can have multiple devices sharing a foundational code base where each device becomes unique through its own custom .overlay file
+
+Managing multiple applications through overlay files | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
+
+
+</br>
+Start by creating a file called `nrf52840dk_nrf52840.overlay`. You can do this by clicking the "No overlay files detected, click here to create one" button under Config files and Devicetree in the Application tree in the VS Code extension. This will create a .overlay file with the same name as the board selected for the build in your project folder on the same level as the `prj.conf` and `CMakeLists.txt` file. You can also create this file manually but make sure that it follows the mentioned naming and location convention.
+</br>
+
+If you've managed to drive one of the LEDs with a PWM instance and set up the .overlay file as described you can now either choose to do the optional steps for  . If you wish, you can do the optional steps under Method 1 will show you how to create a custom PWM device and select which GPIO it should drive through the means of using the pwm_led compatible and pin control, while Method 2 will show you how to do the same *but* by defining and creating your own custom device through a .yml. I personally recommend you to do method 2 and if you have time you can go through the steps to do method 1.
+
+If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). `Step_3.0_sol` works as a jump start for both method 1 and method 2.
+
+# Optional steps for Method 1: Use the pwm_led to drive the motor
+
+
+If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
+
+[pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.3.png" width="1000"> |
+
+
+```
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+		};
+	};
+```
+
+As mentioned, we don't want to change anything inside this file, because those changes will stick to all other projects that are using the same board file. This is why we want to do the changes in our overlay file. Unfortunately, the pin number is not set here directly. It is set in &pwm0 inside pwm_led0. But since the default configuration for pwm_led0 is PWM_POLARITY_INVERTED, and we want to change that as well, we need to add the pwmleds snippet to our overlay file as well. 
+Let us start by adding a pwmleds snippet to our `nrf52840dk_nrf52840.overlay` file. This will overwrite the default settings from the .dts file.
+
+```C
+/{
+    pwmleds {
+        compatible = "pwm-leds";
+        pwm_led0: pwm_led_0 {
+            pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        };
+    };
+};
+```
+
+You can see here that the only change we did was to change the polarity from inverted to normal. This means that the PWM signal will have a high output for the duty cycle, instead of low. If you right click and select "go to definition" on the `&pwm0` in your overlay file, you will see something like this:
+
+```C
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+```
+
+So our pin numbers are set in pwm0_default and pwm0_sleep. Let us start by changing the names of these as we add this to our `overlay` file:
+
+```C
+&pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm0_custom>;
+    pinctrl-1 = <&pwm0_csleep>;
+    pinctrl-names = "default", "sleep";
+};
+```
+
+You can call them whatever you like. I used pwm0_custom and pwm0_csleep. The last part we need to do is that we need to define pwm0_custom and pwm0_csleep. Try right clicking the pwm0_default and pwm0_sleep in the .dts file to see hwat they look like by default:
+
+```C
+&pinctrl {
+	pwm0_default: pwm0_default {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+			nordic,invert;
+		};
+	};
+    
+	pwm0_sleep: pwm0_sleep {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+			low-power-enable;
+		};
+	};
+};
+```
+
+Note that I added the `&pinctrl {` and `};` at the top and bottom, since we need this when we copy it into our `.overlay` file. 
+
+Add this to your `.overlay` file (with the names that you used in `&pwm0`):
+
+```C
+&pinctrl {
+    pwm0_custom: pwm0_custom {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            nordic,invert;
+        };
+    };
+
+    pwm0_csleep: pwm0_csleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            low-power-enable;
+        };
+    };
+};
+```
+
+FYI: the `0, 3` is port 0, pin 3. If you wanted to use e.g. pin P1.15, you would set `psels = <NRF_PSEL(PWM_OUT0, 1, 15). 
+
+In the end, your `nrf52840dk_nrf52840.overlay` file should look something like this:
+
+```C
+&i2c0 {
+    status = "okay";
+    compatible = "nordic,nrf-twim";
+    clock-frequency = < I2C_BITRATE_STANDARD >;
+};
+
+&pinctrl {
+    pwm0_custom: pwm0_custom {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            nordic,invert;
+        };
+    };
+
+    pwm0_csleep: pwm0_csleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            low-power-enable;
+        };
+    };
+};
+
+&pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm0_custom>;
+    pinctrl-1 = <&pwm0_csleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+/{
+    pwmleds {
+        compatible = "pwm-leds";
+        pwm_led0: pwm_led_0 {
+            pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        };
+    };
+};
+```
+
+Try to connect the servo motor. It has three wires. One brown, which you can connect to GND. Then you have one Red, which you can connect to VDD (not the one marked 5V), and then connect the yellow/orange wire to whatever pin you chose for your PWM pin (probably P0.03). 
+Does the motor move? **Warning: Do not attempt to move the rotor by force while the motor is connected to power. The motors are fragile...**
+
+If it does, you can try to create a function inside motor_control.c that you can call from e.g. the button handler to set the pwm signal to different values between 1ms and 2ms. These motors are cheap, so some motors goes 180 degrees between 1ms and 2ms, but yout milage may vary. Try out different values to see what the limits are for your motor. When I tested one of the motors, it turned out that the limits were 0.4ms and 2.4ms. 
+Call the function `set_motor_angle()` and make it return an int (0 on success, negative value on error). Declare it in motor_control.h, and implement it in motor_control.c. make it have an input parameter either as a PWM duty cycle, or an input angle (degrees between 0 and 180).
+
+Use this to set different angles, depending on what button you pressed. 
+
+If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time:
+
+
+## Method 2 - Create a custom motor device and use the PWM module to drive a motor
 
 
