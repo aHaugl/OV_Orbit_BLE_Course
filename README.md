@@ -368,8 +368,8 @@ In this hands on we will implement a PWM device two ways. The first way will be 
 If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
 
 We will divide this into three parts.
-* The first part will cover the common sections used in both method 1 and method 2
-* The second part will show how we can use the PWM module to drive a LED and make it blink using the PWM duty cycle
+* The first part will cover the common sections used in both method 1 and method 2 and show you how to set up and use the zephyr PWM module
+* The second part will show we can create a custom PWM device and select which GPIO the PWM module should drive
 * The third part will show you how to create a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
 
 When we are using the nRF Connect SDK, we have several driver options to control the PWM. We have our own drivers that are tailored for the Nordic Semiconductor devices, or we can use Zephyr's drivers, which will use Nordic's drivers "underneath the hood". For this course we will use Zephyr's PWM drivers. 
@@ -521,13 +521,11 @@ Managing multiple applications through overlay files |
 Start by creating a file called `nrf52840dk_nrf52840.overlay`. You can do this by clicking the "No overlay files detected, click here to create one" button under Config files and Devicetree in the Application tree in the VS Code extension. This will create a .overlay file with the same name as the board selected for the build in your project folder on the same level as the `prj.conf` and `CMakeLists.txt` file. You can also create this file manually but make sure that it follows the mentioned naming and location convention.
 </br>
 
-If you've managed to drive one of the LEDs with a PWM instance and set up the .overlay file as described you can now either choose to do the optional steps for  . If you wish, you can do the optional steps under Method 1 will show you how to create a custom PWM device and select which GPIO it should drive through the means of using the pwm_led compatible and pin control, while Method 2 will show you how to do the same *but* by defining and creating your own custom device through a .yml. I personally recommend you to do method 2 and if you have time you can go through the steps to do method 1.
+If you've managed to drive one of the LEDs with a PWM instance and set up the .overlay file as described you can now either choose to do the optional Method 1, which will show you how to create a custom PWM device and select which GPIO it should drive through the means of using the pwm_led compatible and pin control, or to continue directly to Method 2, which will show you how to do the same *but* by defining and creating your own custom device through a .yaml. I personally recommend you to do method 2 and if you have time you can go through the steps to do method 1.
 
 If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). `Step_3.0_sol` works as a jump start for both method 1 and method 2.
 
 # Optional steps for Method 1: Use the pwm_led to drive the motor
-
-
 If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
 [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
@@ -674,9 +672,212 @@ Call the function `set_motor_angle()` and make it return an int (0 on success, n
 
 Use this to set different angles, depending on what button you pressed. 
 
-If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time:
+If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [the solution for step 3, method 1](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.1_sol).
 
 
 ## Method 2 - Create a custom motor device and use the PWM module to drive a motor
+For this method we will be using what is called a .yaml file to define our new custom device. This file is will be similar to what I showed you earlier for the [`pwm-leds.yaml`](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)
+
+Create a new folder in your project called `"dts"` and within this folder create a new folder named `"bindings"`. Inside `"bindings"` create a file named `"pwm-servo.yaml"`. Inside `pwm-servo.yaml` add the following:
+
+```
+# Copyright (c) 2022 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+description: PWM-driven servo motor.
+
+compatible: "pwm-servo"
+
+include: base.yaml
+```
+If you inspect [`pwm-leds.yaml`](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml) you can also see that this device has some properties. Namely `pwms`. We also want this for our pwm-servo, so we will be adding this to our device. In addition we know that from the servo motor specification, the motor itself has a minimum and maximum pulse as shown below.
+
+Servo Motor SG 90 data sheet | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.6.png" width="1000"> |
+
+A vivid thinker might consider this to be a good property to include in your device as a required property, so we will add this as well to the servo-motor.yaml underneath what we already added.
+
+```
+properties:
+  pwms:
+    required: true
+    type: phandle-array
+    description: PWM specifier driving the servo motor.
+
+  min-pulse:
+    required: true
+    type: int
+    description: Minimum pulse width (nanoseconds).
+
+  max-pulse:
+    required: true
+    type: int
+    description: Maximum pulse width (nanoseconds).
+```
+Now save the pwm-servo.yaml and open the `nrf52840dk_nrf52840.overlay` we created earlier.
+
+To your .overlay add your custom device as follows:
+
+```
+/ {
+    servo: servo {
+        compatible = "pwm-servo";
+        pwms = <&pwm0 0 PWM_MSEC(---) PWM_POLARITY_NORMAL>;
+        min-pulse = <PWM_USEC(---)>;
+        max-pulse = <PWM_USEC(---)>;
+    };
+};
+```
+**Mini challenge:**
+Without looking at the solution below, fill in the missing values by replacing `---` with the values from the datasheet for the [servo motor](http://www.ee.ic.ac.uk/pcheung/teaching/DE1_EE/stores/sg90_datasheet.pdf)
+
+We've now created our device with name servo and nodelabel servo and set the default values to be within the limits and stated that PWM instance 0 should drive this device
+```
+/ {
+    servo: servo {
+        compatible = "pwm-servo";
+        pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        min-pulse = <PWM_USEC(1000)>;
+        max-pulse = <PWM_USEC(2000)>;
+    };
+};
+```
+We could have selected another pwm instance such as &pwm1 instead of &pwm0, but since we're only using 1 pwm instance in this project we stick with instance 0. The next step is to use Zephyrs pin control to select which GPIO pwm0 should drive. By default it drives the GPIO connected to LED1 through the pwm_led0 node, but we want it to drive a free available GPIO that we can connect our servo motor to.
+
+Right click `&pwm0` in your overlay and click `go to definition `. You should see the following
+
+&pwm0 definition | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.7.png" width="1000"> |
+
+Copy and paste the [&pwm0 instance](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L199C1-L204C3) to your overlay file, above the  
+
+Next right click `&pwm0_default` and click "go to definition, which should take you here:
+
+[&pin_control definition](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840-pinctrl.dtsi#L77-L89) | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.8.png" width="1000"> |
 
 
+Copy and paste the pwm0_default and pwm_sleep instance to your overlay file, which now should look like this: 
+
+```
+&pinctrl {
+
+	pwm0_default: pwm0_default {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
+			nordic,invert;
+		};
+	};
+
+	pwm0_sleep: pwm0_sleep {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
+			low-power-enable;
+       };
+    };
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+/ {
+    servo: servo {
+        compatible = "pwm-servo";
+        pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        min-pulse = <PWM_USEC(1000)>;
+        max-pulse = <PWM_USEC(2000)>;
+    };
+};
+```
+
+Replace the pincontrol names with something custom, suited for your device as suggested below:
+
+```
+&pinctrl {
+    pwm0_custom_motor: pwm0_custom_motor {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            nordic,invert;
+        };
+    };
+
+    pwm0_csleep_motor: pwm0_csleep_motor {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            low-power-enable;
+        };
+    };
+};
+
+&pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm0_custom_motor>;
+    pinctrl-1 = <&pwm0_csleep_motor>;
+    pinctrl-names = "default", "sleep";
+};
+```
+We're almost done and ready to test our motor now. As mentioned, the default pwm_led0 node is couled with LED1 (through `GPIO 13`), so for us to be able to use this pwm instance to drive our motor we need to select a GPIO that is free to use. The [User Guide for the nRF52840DK](https://infocenter.nordicsemi.com/pdf/nRF52840_DK_User_Guide_20201203.pdf), section 8.6 gives us some hints as to what may be a good candidate. Here you can see all the available ports and GPIO, whereas many of them are already connected to certain devices such as the LEDs and DK buttons. But every GPIO that does not have gray writing next to them is so called free purpose GPIO's and can be selected. I recommend that you for instance use GPIO 3 on port 0, i.e `P0.03`.
+
+nRF52840DK Connectors | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.9.png" width="1000"> |
+
+Inspect [NRF_PSEL](https://docs.zephyrproject.org/apidoc/latest/nrf-pinctrl_8h.html#a43d0a0ad6e574456a2b69ab5354ccef4) by right clicking it and go to the link. Here you can see that this macro allows you to set which GPIO you want your pin configuration to be selected to use. In your custom pwm0_custom_motor and pwm0_csleep, replace the pin number `13` with pin number `3`.
+
+Next we need to do the same as we did with the pwm0 led when we tested if we had included the PWM module properly. 
+
+**Challenge** 
+Without looking at the solution below: In motor_control.c define replace the pwm_led definition with your servo motor through [`DT_NODELABEL`](https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_NODELABEL) and initialize the device with [`PWM_DT_SPEC_GET`](https://docs.zephyrproject.org/apidoc/latest/group__pwm__interface.html#ga59a79f0b77c5b71252bde126f333a84b)
+
+You also need to replace the name of the device you use in motor_init()
+
+Your motor_control.c should look something like this now, and you can see my solution for this part [here]](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
+
+```C
+#include "motor_control.h"
+
+#define LOG_MODULE_NAME motor_control
+LOG_MODULE_REGISTER(LOG_MODULE_NAME);
+
+#define SERVO_MOTOR     DT_NODELABEL(servo)
+static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(SERVO_MOTOR);
+
+
+#define PWM_PERIOD_NS 20000000
+int motor_init(void)
+{
+    int err = 0;
+    LOG_INF("Initializing Motor Control");
+
+    if (!device_is_ready(pwm_servo.dev)) {
+    LOG_ERR("Error: PWM device %s is not ready",
+            pwm_servo.dev->name);
+    return -EBUSY;
+	}
+
+    err = pwm_set_dt(&pwm_servo, PWM_PERIOD_NS, 1500000);
+    if (err) {
+        LOG_ERR("pwm_set_dt returned %d", err);
+    }
+
+    return err;
+}
+
+```
+
+Try to connect the servo motor. It has three wires. One brown, which you can connect to GND. Then you have one Red, which you can connect to VDD (not the one marked 5V), and then connect the yellow/orange wire to whatever pin you chose for your PWM pin (probably P0.03). 
+Does the motor move? **Warning: Do not attempt to move the rotor by force while the motor is connected to power. The motors are fragile and quite rigid when they are powered**
+
+If it does, you can try to create a function inside motor_control.c that you can call from e.g. the button handler to set the pwm signal to different values between 1ms and 2ms. These motors are cheap, so some motors goes 180 degrees between 1ms and 2ms, but yout milage may vary. Try out different values to see what the limits are for your motor. When I tested one of the motors, it turned out that the limits were 0.4ms and 2.4ms. 
+Call the function `set_motor_angle()` and make it return an int (0 on success, negative value on error). Declare it in motor_control.h, and implement it in motor_control.c. make it have an input parameter either as a PWM duty cycle, or an input angle (degrees between 0 and 180).
+
+Use this to set different angles, depending on what button you pressed. 
+
+If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [the solution for step 3, method 1](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
