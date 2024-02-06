@@ -362,9 +362,7 @@ Build and flash your new firmware. What you should see as output is the same as 
 
 Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
 
-
 ### PWM control
-<br>
 In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through
 
 If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
@@ -378,18 +376,19 @@ When we are using the nRF Connect SDK, we have several driver options to control
 
 Let us start by adding some configurations to our prj.conf file:
 
-**Enable the zephyr PWM driver**
+To enable the zephyr PWM driver add the following to your prj.conf:
 ```C
 # PWM
 CONFIG_PWM=y
 CONFIG_PWM_LOG_LEVEL_DBG=y
 ```
 
-What we are doig here is that we enable the PWM in our project, so that we can use it to control our motor. We will continue by adding the pwm header file near the top of `motor_control.h`. `motor_control.c` will inherit this, as long as it includes `motor_control.h`. Add near the top of motor_control.h:
+What we are doing here is that we enable the PWM in our project, so that we can use it to control our motor. We will continue by adding the pwm header file near the top of `motor_control.h`. `motor_control.c` will inherit this, as long as it includes `motor_control.h`. Add near the top of motor_control.h:
 
 ```C
 #include <zephyr/drivers/pwm.h>
 ```
+
 The beauty of Zephyr drivers is that once we have enabled them through configurations in our prj.conf file, it will automagically be enabled and ready for use. 
 
 Every nRF SoC has a set of peripherals available and every DK based on a nRF SoC has a set of predefined devices available. The nRF52840DK has among them multiple predefined PWM modules and one of them is the pwm_led that we can use to verify that we've set up our PWM module correctly. 
@@ -420,12 +419,10 @@ If you scroll through this .dts file you can see the predefined devices that are
 ```
 Briefly explained, this is a device of the compatible type '[pwm-led](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)', it has an alias, 'pwm_led0', and a name 'pwm_led_0'. It uses the 'pwms'-type instance which in this case is instance 0, has a duty cycle of 20 ms and inverted polarity. In method 2 we will create our own device similarly to how this binding has been created.
 
-Throughout the two next sections we will be using this the 
-), so keep this ready in addition to the .dts file.
-
 <br>
 
-## Method 1 - Use the PWM module to drive a LED
+To ensure that we've enabled the PWM driver properly we want to see if we can drive the pwm_led device that is predefined in the board file with the certain Devicetree and PWM APIs.
+
 The first objective is to define and fetch this device from the .dts file into our .c files. We will do this using the [Devicetree API](https://docs.zephyrproject.org/latest/build/dts/api/api.html#devicetree-api) and the [PWM API documentation](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html).
 
 Under [node intentifiers and helpers](https://docs.zephyrproject.org/latest/build/dts/api/api.html#node-identifiers-and-helpers) you can find that there are various identifiers such as `DT_PATH()`, `DT_NODELABEL()`, `DT_ALIAS()`, and `DT_INST()`, and I mentioned that the pwmleds instance had an alias. Use `DT_ALIAS()` to define a PWM_LED0 device by adding the following near the top of main.c
@@ -433,10 +430,9 @@ Under [node intentifiers and helpers](https://docs.zephyrproject.org/latest/buil
 ```C
 #define PWM_LED0	DT_ALIAS(pwm_led0)
 ```
-
 <br> 
 
-The next we want to do is to initialize this device with some properties using [PWM_DT_SPEC_GET](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html#c.PWM_DT_SPEC_GET).
+The next we want to do is to initialize this device and populize the struct with the properties using [PWM_DT_SPEC_GET](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html#c.PWM_DT_SPEC_GET).
 
 Near the top, but after the PWM_LED0 definition in motor_control.c initialize and populate your device with the parameters from the .dts file:
 
@@ -444,13 +440,15 @@ Near the top, but after the PWM_LED0 definition in motor_control.c initialize an
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
 ```
 
-*Just for information, this is equivalent to:
+Just for information, the definition above is equivalent to:
+
 ```C
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 ```
-or to [PWM_DT_SPEC_GET_BY_NAME(node_id, name)](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html#c.PWM_DT_SPEC_GET_BY_NAME) given that your device has a name*
 
-<\br>
+or to [PWM_DT_SPEC_GET_BY_NAME(node_id, name)](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html#c.PWM_DT_SPEC_GET_BY_NAME) given that your device has a name.
+
+<br>
 
 Next we want to check that our PWM channel is ready when this part of the code is reached. Add these lines to your `motor_init()` function:
 
@@ -478,7 +476,35 @@ PWM Period and PWM Duty Cycle |
 If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK. That is good and all, but we originally used LED1 for something else (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
 
 This is how my motor_control.c looks after this step:
+```C
+#include "motor_control.h"
 
+#define LOG_MODULE_NAME motor_control
+LOG_MODULE_REGISTER(LOG_MODULE_NAME);
+
+#define PWM_LED0	DT_ALIAS(pwm_led0)
+static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
+
+#define PWM_PERIOD_NS 20000000
+int motor_init(void)
+{
+    int err = 0;
+    LOG_INF("Initializing Motor Control");
+
+    if (!device_is_ready(pwm_led0.dev)) {
+    LOG_ERR("Error: PWM device %s is not ready",
+            pwm_led0.dev->name);
+    return -EBUSY;
+	}
+
+    err = pwm_set_dt(&pwm_led0, PWM_PERIOD_NS, 1500000);
+    if (err) {
+        LOG_ERR("pwm_set_dt returned %d", err);
+    }
+
+    return err;
+}
+```
 
 ## Overlay Files
 As mentioned earlier all boards defined in Zephyr have their own board files containing all the information about the predefined devices on the board such as GPIOs, LEDs, pwm instances and their default configuration. We can make changes to the device tree files to change e.g what pins are used for LEDs, but making changes directly to a .dts file will cause *every other project that uses these board files to also use the same configuration*. So to keep a good project-to-code-base-separation we will be using overlay files instead.
