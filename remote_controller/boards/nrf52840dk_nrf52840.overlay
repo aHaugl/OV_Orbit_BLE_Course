@@ -36,7 +36,7 @@
 
 /* STEP 5.5 - Add the servo device  */
 / {
-    servo: servo {
+    servo: servo_0 {
         compatible = "pwm-servo";
         pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
         min-pulse = <PWM_USEC(1000)>;

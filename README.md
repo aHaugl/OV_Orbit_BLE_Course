@@ -803,14 +803,14 @@ Replace the pincontrol names with something custom, suited for your device as su
 &pinctrl {
     pwm0_custom_motor: pwm0_custom_motor {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
             nordic,invert;
         };
     };
 
     pwm0_csleep_motor: pwm0_csleep_motor {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
             low-power-enable;
         };
     };
@@ -838,7 +838,7 @@ Without looking at the solution below: In motor_control.c define replace the pwm
 
 You also need to replace the name of the device you use in motor_init()
 
-Your motor_control.c should look something like this now, and you can see my solution for this part [here]](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
+Your motor_control.c should look something like this now:
 
 ```C
 #include "motor_control.h"
@@ -875,9 +875,13 @@ int motor_init(void)
 Try to connect the servo motor. It has three wires. One brown, which you can connect to GND. Then you have one Red, which you can connect to VDD (not the one marked 5V), and then connect the yellow/orange wire to whatever pin you chose for your PWM pin (probably P0.03). 
 Does the motor move? **Warning: Do not attempt to move the rotor by force while the motor is connected to power. The motors are fragile and quite rigid when they are powered**
 
-If it does, you can try to create a function inside motor_control.c that you can call from e.g. the button handler to set the pwm signal to different values between 1ms and 2ms. These motors are cheap, so some motors goes 180 degrees between 1ms and 2ms, but yout milage may vary. Try out different values to see what the limits are for your motor. When I tested one of the motors, it turned out that the limits were 0.4ms and 2.4ms. 
+If it does, you can try to create a function inside motor_control.c that you can call from e.g. the button handler to set the pwm signal to different values between 1ms and 2ms (min and max duty cycle defined in our overlay earlier). Hint: One way to use the properties defined in our overlay file for minimum and maximum duty cycles is to use [DT_PROP(node_id, prop)](https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_PROP)
+
+These motors are cheap, so some motors goes 180 degrees between 1ms and 2ms, but yout milage may vary. Try out different values to see what the limits are for your motor. When I tested one of the motors, it turned out that the limits were 0.4ms and 2.4ms. 
+
 Call the function `set_motor_angle()` and make it return an int (0 on success, negative value on error). Declare it in motor_control.h, and implement it in motor_control.c. make it have an input parameter either as a PWM duty cycle, or an input angle (degrees between 0 and 180).
 
 Use this to set different angles, depending on what button you pressed. 
 
-If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [the solution for step 3, method 1](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
+If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [partial solution step 3.2](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
+

@@ -18,19 +18,27 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #define RUN_STATUS_LED DK_LED1
 #define RUN_LED_BLINK_INTERVAL 1000
 
+#define SERVO_MOTOR    DT_NODELABEL(servo)
+#define PWM_SERVO_MIN_DUTY_CYCLE  DT_PROP(SERVO_MOTOR, min_pulse)
+#define PWM_SERVO_MAX_DUTY_CYCLE  DT_PROP(SERVO_MOTOR, max_pulse)
+
+
 /* Callbacks */
 void button_handler(uint32_t button_state, uint32_t has_changed)
 {
 	int button_pressed = 0;
+	int err = 0;
 	if (has_changed & button_state)
 	{
 		switch (has_changed)
 		{
 			case DK_BTN1_MSK:
 				button_pressed = 1;
+				err = set_motor_angle(PWM_SERVO_MIN_DUTY_CYCLE);
 				break;
 			case DK_BTN2_MSK:
 				button_pressed = 2;
+				err = set_motor_angle(PWM_SERVO_MAX_DUTY_CYCLE);
 				break;
 			case DK_BTN3_MSK:
 				button_pressed = 3;
@@ -71,8 +79,8 @@ int main(void)
 	err = motor_init();
 
 	for(;;){
-		// dk_set_led(RUN_STATUS_LED,(blink_status++)%2);
-		// k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
+		dk_set_led(RUN_STATUS_LED,(blink_status++)%2);
+		k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
 	}
 	return 0;
 }
