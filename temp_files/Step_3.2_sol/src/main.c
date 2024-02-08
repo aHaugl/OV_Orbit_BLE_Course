@@ -77,6 +77,9 @@ int main(void)
 
 	configure_dk_buttons_and_leds();
 	err = motor_init();
+    if (err) {
+        LOG_ERR("motor_init() failed. (err %d)", err);
+    }
 
 	for(;;){
 		dk_set_led(RUN_STATUS_LED,(blink_status++)%2);

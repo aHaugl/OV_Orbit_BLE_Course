@@ -348,7 +348,7 @@ Open `motor_control.c` and start by adding this line to the very top:
 
 Open `motor_control.h` and add:
 ```C
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 ```
 
@@ -525,7 +525,7 @@ If you've managed to drive one of the LEDs with a PWM instance and set up the .o
 
 If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). `Step_3.0_sol` works as a jump start for both method 1 and method 2.
 
-# Optional steps for Method 1: Use the pwm_led to drive the motor
+# Optional steps for Method 1: Modify the pwm_led0 instance to drive the servo motor
 If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
 [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
@@ -797,7 +797,7 @@ Copy and paste the pwm0_default and pwm_sleep instance to your overlay file, whi
 };
 ```
 
-Replace the pincontrol names with something custom, suited for your device as suggested below:
+Replace the pincontrol names with something custom, suited for your device. For instance as suggested below:
 
 ```
 &pinctrl {
@@ -823,7 +823,7 @@ Replace the pincontrol names with something custom, suited for your device as su
     pinctrl-names = "default", "sleep";
 };
 ```
-We're almost done and ready to test our motor now. As mentioned, the default pwm_led0 node is couled with LED1 (through `GPIO 13`), so for us to be able to use this pwm instance to drive our motor we need to select a GPIO that is free to use. The [User Guide for the nRF52840DK](https://infocenter.nordicsemi.com/pdf/nRF52840_DK_User_Guide_20201203.pdf), section 8.6 gives us some hints as to what may be a good candidate. Here you can see all the available ports and GPIO, whereas many of them are already connected to certain devices such as the LEDs and DK buttons. But every GPIO that does not have gray writing next to them is so called free purpose GPIO's and can be selected. I recommend that you for instance use GPIO 3 on port 0, i.e `P0.03`.
+We're almost done and ready to test our motor now. As mentioned, the default pwm_led0 node is couled with LED1 (through `GPIO 13`), so for us to be able to use this pwm instance to drive our motor we need to select a GPIO that is free to use. The [User Guide for the nRF52840DK](https://infocenter.nordicsemi.com/pdf/nRF52840_DK_User_Guide_20201203.pdf), section 8.6 gives us some hints as to what may be a good candidate. Here you can see all the available ports and GPIO, whereas many of them are already connected to certain devices such as the LEDs and DK buttons. But every GPIO that does not have gray writing next to them is so called free purpose GPIO's and can be selected. I recommend that you for instance use GPIO 3 on port 0, i.e `P0.03` due to its close proximity to both VDD and GND which we also need.
 
 nRF52840DK Connectors | 
 ------------ |
@@ -885,3 +885,221 @@ Use this to set different angles, depending on what button you pressed.
 
 If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [partial solution step 3.2](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
 
+### Step 4 - Adding Bluetooth
+It is finally time to add bluetooth to our project. A hint was given in the project name, but in case you missed it, we will write an application that mimics some sort of bluetooth remote, where we will be able to send button presses to a connected Bluetooth Low Energy Central. We will also add the oppurtunity to write back to the remote control. That may not be a typical feature for a remote control, but for the purpose of learning how to communicate in both directions we will add this. The connected central can either be your phone, a computer, or another nRF52. For this guide we will use the DK we've been working with so far and a smartphone with nRF Connect for iOS or Android.
+
+This part will be similar to the [BLE fundamentals course](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/) on our academy pages, which we recommend that you go through in your own time to pick up some other details that won't be mentioned in this hands-on exercise. 
+In this first part we will go through a majority of the content covered in [Lesson 1 in the mentioned course](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/lessons/lesson-1-bluetooth-low-energy-introduction/).
+
+Because we want to keep our main.c clean, we will try to do most of the bluetooth configuration and handling in another file, just like we did with PWM. Therefore we will start by adding some more custom files. Inside the custom_files folder, create two more files: remote.h and remote.c. To include these custom files to your project, open CMakeLists.txt, add on to what we changed earlier:
+
+```C
+# Custom files and folders
+
+target_sources(app PRIVATE
+    src/custom_files/motor_control.c;
+    src/custom_files/remote.c;
+)
+
+zephyr_library_include_directories(src/custom_files)
+```
+
+
+</br>
+When you build your application again, you should see remote.c appear next to motor_control.c.
+
+</br>
+Open remote.c and add the line at the very top: </br>
+
+```C
+#include "remote.h"
+```
+Also add a log_module similar to the other .c files we've made:
+
+```C
+#define LOG_MODULE_NAME remote
+LOG_MODULE_REGISTER(LOG_MODULE_NAME);
+```
+
+And in `remote.h`, add the following:
+
+```C
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+```
+Now try to create a function called `bluetooth_init()` in your remote.c file that you also need to declare in remote.h. Make the function return `0`, and check this return value in `main()`. Just like before, add whatever is needed in these two files so that you can use this function to log "Initializing Bluetooth". Remember to include remote.h from your main.c file.
+</br>
+Now that we have our own file to do most of the Bluetooth, let us start by adding these four header files in our remote.h file:
+
+```C
+//Bluetooth configs
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/hci.h>
+```
+
+As with the pwm and logging headers, these headers also requires a set of configurations to be enabled. To your prj.conf add the following: 
+
+```
+# Configure Bluetooth
+CONFIG_BT=y
+CONFIG_BT_PERIPHERAL=y
+CONFIG_BT_DEVICE_NAME="Remote_controller"
+CONFIG_BT_DEVICE_APPEARANCE=0
+CONFIG_BT_MAX_CONN=1
+CONFIG_BT_LL_SOFTDEVICE=y
+
+CONFIG_ASSERT=y
+````
+
+What we do here is:
+- Enable Bluetooth,
+- Support the peripheral (advertising) role
+- Set our device_name, which we will use later
+- Set the appearance. Look in the description of this configuration to see what this does.
+- Set the maximum number of simultaneous connections to 1.
+- Tell it to use the Nordic Softdevice Controller. 
+
+For most Bluetooth Low Energy, these four headers and these configurations will do the job. 
+
+Let us start by finding a function to *enable bluetooth*. Inspect [The Generic Access Profile API](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html) and see if you find it. *(Hint: It is [this one](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable)).
+
+<br>
+If you've found the [correct API function](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable), we can see by inspecting it that this is a function that returns an int and it takes an input `bt_ready_cb_t. Follow the definition of [bt_ready_cb_t](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_ready_cb_t) you will see that the bt_ready_cb_t is defined as follows:
+
+```C
+typedef void (*bt_ready_cb_t)(int err)
+```
+
+This means that `bt_ready_cb_t` takes a function pointer., i.e a callback function as input parameter. The callback is on the form `void callback_name(int err)`. Let us create a callback named "bt_ready", which we will implement above `bluetooth init()`in remote.c and pass it onto `bt_enable()`.
+
+```C
+void bt_ready(int err)
+{
+    if (err) {
+        LOG_ERR("bt_enable returned %d", err);
+    }
+}
+```
+
+One important aspect when it comes to initializing, enabling and in general running time critical code is that we want to ensure that everything has enough time to finish before we race on to the next part of the code. To do this we can use a [semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html).
+
+At the top of this page you can see 2 key properties of the semaphore and 3 criterias for how to use it and where to use it. Most of might already know what a semaphore is already, but read through the concept before moving on anyways to refresh this topic and to see how it is used in NCS/Zephyr.
+
+Moving back to why we want to do this: We want to wait for our callback before we continue with our application. In order to do this, we will as mentioned use a semaphore. [Define the semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html#defining-a-semaphore) near the top of remote.c:
+
+```C
+static K_SEM_DEFINE(bt_init_ok, 0, 1);
+```
+
+After `bt_enable(bt_ready_callback)` try to [take the semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html#taking-a-semaphore), so that the application waits until it is given from somewhere else, and then try to give it in the bt_ready callback. </br>
+*Hint: The k_sem_take() requires a timeout. You can use K_FOREVER.*
+
+Now is a good time to build and flash your firmware to see if you've set everything up properly. If your successfull in this step and if you connect to a terminal like we've done earlier you should see something like the following:
+
+```
+*** Booting nRF Connect SDK v2.5.1 ***
+[00:00:00.000,366] <inf> app: Hello World! nrf52840dk_nrf52840
+
+[00:00:00.000,701] <inf> motor_control: Initializing Motor Control
+[00:00:00.000,732] <dbg> pwm_nrfx: pwm_nrfx_set_cycles: channel 0, pulse 24000, period 320000, prescaler: 4.
+[00:00:00.000,762] <inf> remote: Initializing Bluetooth
+[00:00:00.000,915] <inf> bt_sdc_hci_driver: SoftDevice Controller build revision: 
+                                            c5 93 ba a9 14 4d 8d 05  30 4e 9b 92 d7 71 1e e8 |.....M.. 0N...q..
+                                            aa 02 50 3c                                      |..P<             
+[00:00:00.004,455] <inf> bt_hci_core: HW Platform: Nordic Semiconductor (0x0002)
+[00:00:00.004,486] <inf> bt_hci_core: HW Variant: nRF52x (0x0002)
+[00:00:00.004,516] <inf> bt_hci_core: Firmware: Standard Bluetooth controller (0x00) Version 197.47763 Build 2370639017
+[00:00:00.005,737] <inf> bt_hci_core: Identity: CC:EA:F9:3E:56:AE (random)
+[00:00:00.005,798] <inf> bt_hci_core: HCI: version 5.4 (0x0d) revision 0x1102, manufacturer 0x0059
+[00:00:00.005,828] <inf> bt_hci_core: LMP: version 5.4 (0x0d) subver 0x1102
+```
+
+If you're stuck here (and you've asked for help from either the representatives hosting the course or your fellow course participants), you can inspect the [partial solution for this step here](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_4.0_sol).
+
+</br>
+
+### Advertising
+We've now enabled Bluetooth but we've not yet used it for anything. Taking a page out of [Lesson 2](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/lessons/lesson-2-bluetooth-le-advertising/) in the academy course we will now enable BLE Advertising. 
+
+We want to include two things in our advertisements. The device name and the UUID of the service that we will implement later. Let us start by adding the UUID (Universally Unique Identifier). I typically use an online UUID generator. Try using [this online UUID Generator](https://www.uuidgenerator.net/version4). In my case, I got a UUID `020f85e6-bc61-4d87-9319-9aff590fd64c` which I translated to this format:
+
+```C
+/* Add this to remote.h */
+/** @brief UUID of the Remote Service. **/
+#define BT_UUID_REMOTE_SERV_VAL \
+BT_UUID_128_ENCODE(0x020f0001, 0xbc61, 0x4d87, 0x9319, 0x9aff590fd64c)
+```
+where I set the two last bytes of the first section to 0001. This is so it is easier to recognize the UUID later. Copy your own generated UUID into the same format, and set the two last bytes of the first sections to 0001, like I did. Also add the following line below the definition of your UUID:
+
+```C
+#define BT_UUID_REMOTE_SERVICE  BT_UUID_DECLARE_128(BT_UUID_REMOTE_SERV_VAL)
+```
+These are just two ways to define the same UUID, which we will use later. Now, open remote.c, and let us look into how we can start advertising.
+
+If you inspect the GAP API you will find [bt_le_adv_start](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#group__bt__gap_1gad2e3caef88d52d720e8e4d21df767b02), which is, as the function name states, the function we need to start advertising. It sets advertisement data, scan respons data, advertisement parameters and finally it starts advertising.
+
+The advertisement data and scan response data needs to be defined as a [bt_data struct](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data) constructed in a certain way. In addition we will use `CONFIG_BT_DEVICE_NAME` which we've already defined to advertise our devices name.
+
+Add this a suitable place, near the top, in remote.c:
+
+```C
+#define DEVICE_NAME CONFIG_BT_DEVICE_NAME
+#define DEVICE_NAME_LEN (sizeof(DEVICE_NAME)-1)
+```
+and open prj.conf and replace the name of 
+```
+[CONFIG_BT_DEVICE_NAME](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_BT_DEVICE_NAME).="Remote_controller"
+```
+with something custom for your device.
+
+## Prepare the advertise packet
+Declare an array `ad[]` and `sd[]` of type [struct bt_data](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data). It should look like this
+
+
+```C
+static const struct bt_data ad[] = {
+
+};
+
+static const struct bt_data sd[] = {
+
+};
+```
+The next we want to do is to populate it using the helper macro [BT_DATA_BYTES()](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_BYTES). We also want to use the helper macro [BT_DATA()](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA). Open the documentation for `BT_DATA_BYTES()` and `BT_DATA()` and have a look at how they are defined.
+
+In this exercise we want to advertise that we are a [general discoverable](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_LE_AD_GENERAL) device that [only supports Low Energy](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_LE_AD_NO_BREDR) and we also want to advertise the [devices complete name](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_NAME_COMPLETE). In the scan response pack we want to have our custom remote service which is a [BT_DATA_UUID128_ALL](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_UUID128_ALL).
+
+Now this might seem like a lot of magic and strange names and all such things, and it is, but all the parameters and types we've mentioned comes from the specification. In the end your ad and sd structs should look like this:
+
+```C
+static const struct bt_data ad[] = {
+    BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+    BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN)
+};
+
+static const struct bt_data sd[] = {
+    BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_REMOTE_SERV_VAL),
+};
+```
+
+We've now set up everything we need for [bt_le_adv_start](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#group__bt__gap_1gad2e3caef88d52d720e8e4d21df767b02).
+
+To your bluetooth init, after you've taken the semaphore from bt_enable, add the following:
+
+```C
+/* This snippet belongs in bluetooth_init() in remote.c */
+    LOG_INF("Starting advertising");
+    err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+    if (err){
+        LOG_ERR("couldn't start advertising (err = %d", err);
+        return err;
+    }
+```
+
+Now your device should advertise if you flash it with the latest build. Open nRF Connect for Desktop/iOS/Android and start scanning for the device. If there are many BLE devices nearby, try to sort by RSSI (Received Signal Strength Indicator), or ad a filter to the advertising name. 
+
+Scan using nRF Connect for Mobile (Android) | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.0.png" width="1000"> |

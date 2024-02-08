@@ -77,7 +77,6 @@ int main(void)
 	LOG_INF("Hello World! %s\n", CONFIG_BOARD);
 
 	configure_dk_buttons_and_leds();
-
 	err = motor_init();
     if (err) {
         LOG_ERR("motor_init() failed. (err %d)", err);
