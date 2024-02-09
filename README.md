@@ -1069,9 +1069,17 @@ static const struct bt_data sd[] = {
 ```
 The next we want to do is to populate it using the helper macro [BT_DATA_BYTES()](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_BYTES). We also want to use the helper macro [BT_DATA()](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA). Open the documentation for `BT_DATA_BYTES()` and `BT_DATA()` and have a look at how they are defined.
 
-In this exercise we want to advertise that we are a [general discoverable](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_LE_AD_GENERAL) device that [only supports Low Energy](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_LE_AD_NO_BREDR) and we also want to advertise the [devices complete name](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_NAME_COMPLETE). In the scan response pack we want to have our custom remote service which is a [BT_DATA_UUID128_ALL](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_UUID128_ALL).
+In this exercise we want to advertise that we are
+* A [general discoverable](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_LE_AD_GENERAL) device  
+* We only supports Low Energy Bluetooth through [BT_LE_AD_NO_BREDR](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_LE_AD_NO_BREDR) (since Nordic’s products only support Bluetooth LE, this flag should always be set to this value)
+* We want to advertise the devices complete local name through [BT_DATA_NAME_COMPLETE](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_NAME_COMPLETE).
 
-Now this might seem like a lot of magic and strange names and all such things, and it is, but all the parameters and types we've mentioned comes from the specification. In the end your ad and sd structs should look like this:
+In our scan response pack we want to have
+* our custom remote service which is a [BT_DATA_UUID128_ALL](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.BT_DATA_UUID128_ALL).
+
+Now this might seem like a lot of magic and strange names and all such things, and it is if you're not familiar with the APIs, but all the parameters and types we've mentioned comes from the specification and are defined through the various APIs created for Bluetooth. 
+
+You can try and fill in the parameters on your own, but the solution requires that your ad and sd structs should look like this:
 
 ```C
 static const struct bt_data ad[] = {
@@ -1100,6 +1108,174 @@ To your bluetooth init, after you've taken the semaphore from bt_enable, add the
 
 Now your device should advertise if you flash it with the latest build. Open nRF Connect for Desktop/iOS/Android and start scanning for the device. If there are many BLE devices nearby, try to sort by RSSI (Received Signal Strength Indicator), or ad a filter to the advertising name. 
 
-Scan using nRF Connect for Mobile (Android) | 
+Scan using nRF Connect for Mobile (Android) | Listed UUIDs | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.0.png" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.0.png" width="300"> | <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.1.png" width="300"> |
+
+If you select this device, you should be able to see some information from the advertisements. The name should appear as we set it in our prj.conf, and the service should match the service UUID should be visible, and match the service UUID that we defined in remote.h.
+
+You should see that you can actually connect to your device as well, since we claimed in the `BT_LE_ADV_CONN` (from bt_le_adv_start()) that we are connectable. However, if you try to connect to it, you will see that other than the Generic Attribute and the Generic Access services, we don't actually have the custom service that we claimed to have in the our advertising packet (Listed as "Advertised Services"). We will fix that later, but first, let us try to inform our application that something actually connected to us. The next part will use some elements from [Lesson 3](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/lessons/lesson-3-bluetooth-le-connections/) in the Bluetooth course, and I recommend that you have a closer look at this lesson to capture the concept of BLE connections in greater detail.
+
+We want to receive these events in our main.c file, so that we can keep track of the state of our device. Let us start by adding a struct containing the callbacks in main.c:
+
+```C
+struct bt_conn_cb bluetooth_callbacks = {
+	.connected 	= on_connected,
+	.disconnected 	= on_disconnected,
+};
+```
+
+Try "control clicking" bt_conn_cb, or go to [struct bt_conn_cb](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/connection_mgmt.html#c.bt_conn_cb) on the documentation pages, to see what callback types the .connected and .disconnected callback events are to understand why they have the function parameters that they have. The function parameters I'm referring to are
+
+```C
+void (*connected)(struct bt_conn *conn, uint8_t err)
+```
+
+and 
+
+```C
+void (*disconnected)(struct bt_conn *conn, uint8_t reason)
+```
+
+We will use these functions to print to our log that we are connected, and to set a connection pointer that we use to keep track of whether or not we are in a connection. Because the callbacks are triggered from the Bluetooth libraries, it is important that they have the same function parameters as described in the documentation of the API linked above.
+
+Near top of main.c (after bluetooth_callbacks struct) add the following:
+
+```C
+/* Near top of main.c (after bluetooth_callbacks struct) */
+static struct bt_conn *current_conn;    // Used to keep track of current connection status.
+
+/* Callbacks, also in main.c: */
+
+void on_connected(struct bt_conn *conn, uint8_t err)
+{
+    if (err) {
+        LOG_ERR("connection failed, err %d", err);
+    }
+    current_conn = bt_conn_ref(conn);
+    dk_set_led_on(CONN_STATUS_LED);
+}
+
+void on_disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	LOG_INF("Disconnected (reason: %d)", reason);
+	dk_set_led_off(CONN_STATUS_LED);
+	if(current_conn) {
+		bt_conn_unref(current_conn);
+		current_conn = NULL;
+	}
+}
+```
+
+and near the top of your code define a CONN_STATUS_LED to indicate our connection status
+
+```C
+#define CONN_STATUS_LED DK_LED2
+```
+
+Although it may not be completely clear, what you need to know here is that we fetch a connection reference from the connection event. We will use this later. When we disconnect we remove this reference, and set the current_conn parameter back to a NULL-pointer.
+
+
+**Challenge:** </br>
+***Forward these callbacks (the bluetooth_callbacks parameter) to bluetooth init, and use bt_conn_cb_register() to register them to our Bluetooth stack. Do so before you call bt_enable(). In order to forward the bluetooth_callbacks I suggest that you make the bluetooth_init() function take them in as a pointer. If you are stuck, you will find a solution below.***
+
+</br>
+</br>
+
+If you followed the guide this far, your files should look something like [this](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_4.1
+_sol). You can use this in case you got stuck somewhere. Please note that I also added some new code to the connected and disconnected events in main.c, and a current_conn parameter to keep track of the current connection. 
+
+</br>
+
+### Step 5 - Adding our first Bluetooth Service
+Let us add the service that we claim that we have when we advertise. We will use the macro [BT_GATT_SERVICE_DEFINE](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_SERVICE_DEFINE)to add our service. It is quite simple at the same time as it is quite complex. When we use this macro to create and add our service, the rest is done "under the hood" of NCS/Zephyr. By just adding this snippet to remote.c:
+
+
+```C
+/* This code snippet belongs to remote.c */
+BT_GATT_SERVICE_DEFINE(remote_srv,
+BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
+);
+```
+
+And voila! We have our first Bluetooth Low Energy service. Try to connect to it using nRF Connect, and see that you can see the service.
+Our first service | 
+------------ |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.2.png" width="1000"> |
+
+However, a service without any characteristics isn't very impressive. Let us add a characteristic that we can read from our Central. </br>
+We start by defining a new UUID for our characteristic. Basically, you can copy your previous UUID define and increment the two bytes that you set to 0001 to 0002:
+
+```C
+/* This code snippet belongs to remote.h */
+/** @brief UUID of the Button Characteristic. **/
+#define BT_UUID_REMOTE_BUTTON_CHRC_VAL \
+	BT_UUID_128_ENCODE(0xe9ea0002, 0xe19b, 0x482d, 0x9293, 0xc7907585fc48)
+```
+
+```C
+/* This code snippet belongs to remote.h */
+#define BT_UUID_REMOTE_BUTTON_CHRC 	BT_UUID_DECLARE_128(BT_UUID_REMOTE_BUTTON_CHRC_VAL)
+```
+
+I called my handle BT_UUID_REMOTE_BUTTON_CHRC. Whatever you call it, we will now add it to our service macro:
+
+```C
+BT_GATT_SERVICE_DEFINE(remote_srv,
+BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
+    BT_GATT_CHARACTERISTIC(BT_UUID_REMOTE_BUTTON_CHRC,
+                    BT_GATT_CHRC_READ,
+                    BT_GATT_PERM_READ,
+                    read_button_characteristic_cb, NULL, NULL),
+);
+```
+
+What we are doing here is saying that we want to add a characteristic to our service using the UUID that we just defined. We claim that it is possible to read it, and then we give it the permission to be read. The read_button_characteristic is a callback that is triggered whenever someone is reading our characteristic. The first NULL is the callback for when someone is writing to our characteristic, which will never happen since it is not possible to write to this characteristic. The last NULL is the actual value. We will set that later. 
+</br>
+
+First we need to implement the `read_button_characteristic_cb` callback function. It is a bit tricky to navigate to the callback definition of this macro, but if you look in `gatt.h`, where the [`BT_GATT_CHARACTERISTIC`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHARACTERISTIC) macro is defined, and search for "[`struct bt_gatt_attr`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.bt_gatt_attr)" then this will hold the callbacks that we will use for read, and later for write callbacks. </br>
+
+So we see that the read callback should look something like [bt_gatt_attr_read_func_t](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.bt_gatt_attr_read_func_t), i.e something like:
+
+```C
+typedef ssize_t (*read)(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset)
+```
+
+Replace (*read) with the name we passed in BT_GATT_CHARACTERISTIC and return the return value from bt_gatt_attr_read():
+
+```C
+ssize_t bt_gatt_attr_read(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			  void *buf, uint16_t buf_len, uint16_t offset,
+			  const void *value, uint16_t value_len)
+```
+
+We need this function to return the length of the value being read, and it needs to be returned using bt_gatt_attr_read().
+
+```C
+/* This snippet belongs in remote.c */
+static uint8_t button_value = 0;
+
+static ssize_t read_button_characteristic_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+                                            void *buf, uint16_t len, uint16_t offset)
+{
+    return bt_gatt_attr_read(conn, attr, buf, len, offset, &button_value, sizeof(button_value));
+}
+
+```
+
+**Challenge:**
+
+<br>
+
+***Before we try to connect again, create a function in remote.c that we can call from main.c (add declaration in remote.h) that changes the value of the parameter `button_value` based on an input parameter. Call it "set_button_value()" and call it in the button_handler from main.c, with the button_pressed parameter as the input.***
+
+Now, try to connect to your device using nRF Connect, and see that you have a characteristic that you can read using the read button in nRF Connect (the button with the down pointing arrow). Whenever you push a button on your DK and read it again, you should see that the is updated.
+
+</br>
+
+If you are stuck you can have a look at the [partial solution for this step](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_4.2
+_sol)
+
+</br>
+
+### STEP 6 - Characteristic Notifications

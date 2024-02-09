@@ -4,7 +4,6 @@
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 static K_SEM_DEFINE(bt_init_ok, 0, 1);
-static uint8_t button_value = 0;
 
 #define DEVICE_NAME CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME)-1)
@@ -18,35 +17,12 @@ static const struct bt_data sd[] = {
     BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_REMOTE_SERV_VAL),
 };
 
-/* Declarations */
-static ssize_t read_button_characteristic_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset);
-
-
-BT_GATT_SERVICE_DEFINE(remote_srv,
-BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
-    BT_GATT_CHARACTERISTIC(BT_UUID_REMOTE_BUTTON_CHRC,
-                    BT_GATT_CHRC_READ,
-                    BT_GATT_PERM_READ,
-                    read_button_characteristic_cb, NULL, NULL),
-);
-
-static ssize_t read_button_characteristic_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr,
-                                            void *buf, uint16_t len, uint16_t offset)
-{
-    return bt_gatt_attr_read(conn, attr, buf, len, offset, &button_value, sizeof(button_value));
-}
-
 void bt_ready_callback(int err)
 {
     if (err) {
         LOG_ERR("bt_enable returned %d", err);
     }
     k_sem_give(&bt_init_ok);
-}
-
-void set_button_press(uint8_t btn_value)
-{
-    button_value = btn_value;
 }
 
 int bluetooth_init(struct bt_conn_cb * bt_cb)
@@ -67,7 +43,7 @@ int bluetooth_init(struct bt_conn_cb * bt_cb)
     }
     k_sem_take(&bt_init_ok, K_FOREVER);
 
-  
+    /* This snippet belongs in bluetooth_init() in remote.c */
     LOG_INF("Starting advertising");
     err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
     if (err){
