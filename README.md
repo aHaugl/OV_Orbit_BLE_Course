@@ -525,7 +525,7 @@ If you've managed to drive one of the LEDs with a PWM instance and set up the .o
 
 If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). `Step_3.0_sol` works as a jump start for both method 1 and method 2.
 
-# Optional steps for Method 1: Modify the pwm_led0 instance to drive the servo motor
+### Optional steps for Method 1: Modify the pwm_led0 instance to drive the servo motor
 If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
 [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
