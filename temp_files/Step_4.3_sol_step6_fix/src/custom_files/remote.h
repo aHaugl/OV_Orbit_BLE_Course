@@ -34,4 +34,3 @@ void bt_ready_callback(int err);
 int bluetooth_init(struct bt_conn_cb *bt_cb, struct bt_remote_service_cb *remote_cb);
 void set_button_press(uint8_t btn_value);
 int send_button_notification(struct bt_conn *conn, uint8_t value);
-

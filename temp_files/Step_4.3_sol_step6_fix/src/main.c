@@ -25,16 +25,12 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #define PWM_SERVO_MIN_DUTY_CYCLE  DT_PROP(SERVO_MOTOR, min_pulse)
 #define PWM_SERVO_MAX_DUTY_CYCLE  DT_PROP(SERVO_MOTOR, max_pulse)
 
-#define MEAN_DUTY_CYCLE       1500000
-volatile int motor_angle    = MEAN_DUTY_CYCLE;
-
 /* Near top of main.c */
 static struct bt_conn *current_conn;    // Used to keep track of current connection status.
 
 void on_connected(struct bt_conn *conn, uint8_t err);
 void on_disconnected(struct bt_conn *conn, uint8_t reason);
 void on_notif_changed(enum bt_button_notifications_enabled status);
-void on_data_received(struct bt_conn *conn, const uint8_t *const data, uint16_t len);
 
 
 struct bt_conn_cb bluetooth_callbacks = {
@@ -43,8 +39,7 @@ struct bt_conn_cb bluetooth_callbacks = {
 };
 
 struct bt_remote_service_cb remote_callbacks = {
-    .notif_changed = on_notif_changed,
-    .data_received = on_data_received,
+	.notif_changed = on_notif_changed,
 };
 
 /* Callbacks  */
@@ -79,68 +74,39 @@ void on_notif_changed(enum bt_button_notifications_enabled status)
     }
 }
 
-void on_data_received(struct bt_conn *conn, const uint8_t *const data, uint16_t len)
-{
-    uint8_t temp_str[len+1];
-    memcpy(temp_str, data, len);
-    temp_str[len] = 0x00;
-
-    LOG_INF("Received data on conn %p. Len: %d", (void *)conn, len);
-    LOG_INF("Data: %s", temp_str);
-
-    if (data[0] == 0x00) {
-        set_motor_angle(PWM_SERVO_MIN_DUTY_CYCLE);
-    }
-    else if (data[0] == 0x01) {
-        set_motor_angle(PWM_SERVO_MAX_DUTY_CYCLE);
-    }
-}
-
 void button_handler(uint32_t button_state, uint32_t has_changed)
 {
-    int err = 0;
 	int button_pressed = 0;
+	int err = 0;
 	if (has_changed & button_state)
 	{
 		switch (has_changed)
 		{
 			case DK_BTN1_MSK:
 				button_pressed = 1;
-                err = set_motor_angle(PWM_SERVO_MIN_DUTY_CYCLE);
+				err = set_motor_angle(PWM_SERVO_MIN_DUTY_CYCLE);
 				break;
 			case DK_BTN2_MSK:
 				button_pressed = 2;
-                err = set_motor_angle(PWM_SERVO_MAX_DUTY_CYCLE);
+				err = set_motor_angle(PWM_SERVO_MAX_DUTY_CYCLE);
 				break;
 			case DK_BTN3_MSK:
-                button_pressed = 3;
-                motor_angle -= 100000;
-				err = set_motor_angle(motor_angle);
-                LOG_INF("motor angle = %d", motor_angle);
+				button_pressed = 3;
 				break;
 			case DK_BTN4_MSK:
-                button_pressed = 4;
-                motor_angle += 100000;
-				err = set_motor_angle(motor_angle);
-                LOG_INF("motor angle = %d", motor_angle);
+				button_pressed = 4;
 				break;
 			default:
 				break;
 		}
-        LOG_INF("Button %d pressed.", button_pressed);
+		LOG_INF("Button %d pressed.", button_pressed);
+		set_button_press(button_pressed);
+		err = send_button_notification(current_conn, button_pressed);
         if (err) {
-            LOG_ERR("couldn't set duty cycle. Err %d", err);
-        }
-        set_button_press(button_pressed); 
-        err = send_button_notification(current_conn, button_pressed);
-        if (err) {
-            LOG_ERR("Couldn't send notification. Err %d", err);
+            LOG_ERR("Couldn't send notificaton. (err: %d)", err);
         }
     }
 }
-
-
-
 
 /* Configurations */
 static void configure_dk_buttons_and_leds(void){
