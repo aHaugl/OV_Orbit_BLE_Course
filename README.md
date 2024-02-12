@@ -414,7 +414,7 @@ The beauty of Zephyr drivers is that once we have enabled them through configura
 
 Every nRF SoC has a set of peripherals available and every DK based on a nRF SoC has a set of predefined devices available. The nRF52840DK has among them multiple predefined PWM modules and one of them is the pwm_led that we can use to verify that we've set up our PWM module correctly. 
 
-Under the devicetree tab in your applicaiton tree you can see the devicetree used for the current build. This board is selected from the list of boards found in [sdk_version/zephyr/boards/arm](https://github.com/nrfconnect/sdk-zephyr/tree/main/boards/arm), which is the nrf52840dk_nrf52840.dts in our case. 
+Under the devicetree tab in your applicaiton tree you can see the devicetree used for the current build. This board is selected from the list of boards found in [sdk_version/zephyr/boards/arm](https://github.com/nrfconnect/sdk-zephyr/tree/main/boards/arm), which is the nrf52840dk_nrf52840.dts located in [the nrf52840dk_nrf52840 folder](https://github.com/nrfconnect/sdk-zephyr/tree/main/boards/arm/nrf52840dk_nrf52840). 
 
 Application Tree Devicetree | 
 ------------ |
@@ -496,7 +496,7 @@ PWM Period and PWM Duty Cycle |
 
 If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK. That is good and all, but we originally used LED1 for something else (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
 
-This is how my motor_control.c looks after this step:
+Before we do so, here's how my motor_control.c looks after this step.
 ```C
 #include "motor_control.h"
 
@@ -530,7 +530,6 @@ int motor_init(void)
 #### Overlay Files
 As mentioned earlier all boards defined in Zephyr have their own board files containing all the information about the predefined devices on the board such as GPIOs, LEDs, pwm instances and their default configuration. We can make changes to the device tree files to change e.g what pins are used for LEDs, but making changes directly to a .dts file will cause *every other project that uses these board files to also use the same configuration*. So to keep a good project-to-code-base-separation we will be using overlay files instead.
 
-
 An overlay file is as the name implies: A file that lays itself over the top of the device tree or project configurations and is tailored to this specific type of device. The way that it works is that the compiler will first read the board file (.dts file), and then it will look for an overlay file. If it finds one, then all the settings found in the .overlay file will overwrite the default settings from the .dts file, but only for the current project. This way we can have multiple devices sharing a foundational code base where each device becomes unique through its own custom .overlay file
 
 Managing multiple applications through overlay files | 
@@ -548,12 +547,13 @@ If you've managed to drive one of the LEDs with a PWM instance and set up the .o
 If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files\Step_3.0_sol](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). This partial solution also works as a jump start for both method 2 and the optional steps for method 1.
 
 #### Method 1 - Optional steps: Modify the pwm_led0 instance to drive the servo motor
-If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
+This part is to showcase how you can reconfigure existing peripheral devices such as the predefined pwm_led0 instance to something else. It is a section that is defined to break apart some of the abstraction layers that comes with overlayfiles and devicetree, but if you're not up for the challenge it is also completely fine to move on to Method 2. I do however recommend that you give it a try and see if you're able to go through it since it should give you some deeper understanding over how devices and peripherals works in NCS. We should have plenty of time for you to go through both methods.
+
+Now to the steps for how to do this: If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
 [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.3.png" width="1000"> |
-
 
 ```
 	pwmleds {
@@ -564,7 +564,7 @@ If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we c
 	};
 ```
 
-As mentioned, we don't want to change anything inside this file, because those changes will stick to all other projects that are using the same board file. This is why we want to do the changes in our overlay file. Unfortunately, the pin number is not set here directly. It is set in &pwm0 inside pwm_led0. But since the default configuration for pwm_led0 is PWM_POLARITY_INVERTED, and we want to change that as well, we need to add the pwmleds snippet to our overlay file as well. 
+As mentioned in the `overlay files` section , we don't want to change anything inside this file, because those changes will stick to all other projects that are using the same board file. This is why we want to do the changes in our overlay file. Unfortunately, the pin number is not set here directly. It is set in &pwm0 inside pwm_led0. But since the default configuration for pwm_led0 is PWM_POLARITY_INVERTED, and we want to change that as well, we need to add the pwmleds snippet to our overlay file as well. 
 Let us start by adding a pwmleds snippet to our `nrf52840dk_nrf52840.overlay` file. This will overwrite the default settings from the .dts file.
 
 ```C
@@ -647,12 +647,6 @@ FYI: the `0, 3` is port 0, pin 3. If you wanted to use e.g. pin P1.15, you would
 In the end, your `nrf52840dk_nrf52840.overlay` file should look something like this:
 
 ```C
-&i2c0 {
-    status = "okay";
-    compatible = "nordic,nrf-twim";
-    clock-frequency = < I2C_BITRATE_STANDARD >;
-};
-
 &pinctrl {
     pwm0_custom: pwm0_custom {
         group1 {
