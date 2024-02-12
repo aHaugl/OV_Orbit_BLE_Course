@@ -182,8 +182,7 @@ Try adding `dk_leds_init()` to your configure_dk_buttons_leds() function. Since 
 
 You may see that if you try to compile the sample after adding a function from the `dk_buttons_and_leds.h`, it will fail. The reason for this is that while we included the `dk_buttons_and_leds.h`, we didn't include the dk_buttons_and_leds.c file yet. This means that the compiler will not find the definitions of the functions that the header file claims that we have. We need to tell our application how to add the `dk_buttons_and_leds.c` file. There are two ways of doing this. If you create your own files, you can add them manually, which we will do later for some custom files. But for now we want to add a file that belongs to NCS, and therefore we include it using configuration switches.
 
-From the [DK buttons and LEDs](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html) documentation page we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that [`CONFIG_DK_LIBRARY`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY) also selects another configuration which we will use: `CONFIG_GPIO`
-https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY
+From the [DK buttons and LEDs](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html) documentation page we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that [`CONFIG_DK_LIBRARY`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY) also selects another configuration which we will use: `CONFIG_GPIO`.
 
 <br>
 
@@ -212,6 +211,7 @@ Build and flash your firmware. If you've done everything "as intended" you shoul
 
 </br>
 Now, let us look for a function that can enable the buttons in the `dk_buttons_and_leds.h` file or [Library API](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html). Remember to check the return value of the button init function. When you have a button handler set up, try to use it to print something in the log, so that we can see that it triggers correctly. We can tweak the button handler later.
+
 </br>
 
 *Hint: As this function initializes our buttons, it has an input parameter which is a callback handler. Use the "Go to definition" on the button handler type to see what kind of callback function it expects. If the button handler type that is expected is defined like this:* 
@@ -319,9 +319,29 @@ The motor that we used is the Tower Pro MG90S. You can find a very simple datash
 
 Basically, we want to output a PWM signal, and the duty cycle of the PWM signal determines what angle/position the rotor will maintain. In our case, the motor wants a duty cycle between 1 and 2 ms, and a PWM period of 20ms. 
 
-Because we want to keep main.c as clutter free as possible, we will try to do most of the PWM configurations and handling in another file, and implement some simple functions that we can call from main.c. Therefore we will add a couple of custom files. Inside your application folder (probably called `remote_controller`, you should see a folder named `src`. Inside this you will see your main.c file. Start by creating a new folder next to main.c called `custom_files`. You can either do this from Visual Studio Code, or you can do it from your Operative System's file explorer. Inside that folder, create two new files: `motor_control.h` and `motor_control.c`. To include these two files to your project, open `CMakeLists.txt` in Visual Studio Code and add the following
+Because we want to keep main.c as clutter free as possible, we will try to do most of the PWM configurations and handling in another file, and implement some simple functions that we can call from main.c. Therefore we will add a couple of custom files. Inside your application folder (probably called `remote_controller`, you should see a folder named `src`. Inside this you will see your main.c file. Start by creating a new folder next to main.c called `custom_files`. You can either do this from Visual Studio Code, or you can do it from your Operative System's file explorer. Inside that folder, create two new files: `motor_control.h` and `motor_control.c`. To include these two files to your project, open `CMakeLists.txt` in Visual Studio Code and add the following to the end of CMakeLists.txt
 </br>
 ```C
+# Custom files and folders
+
+target_sources(app PRIVATE
+    src/custom_files/motor_control.c
+)
+
+zephyr_library_include_directories(src/custom_files)
+```
+In my project it looks like this:
+
+```C
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(remote_controller)
+
+target_sources(app PRIVATE src/main.c)
+
 # Custom files and folders
 
 target_sources(app PRIVATE
@@ -364,14 +384,14 @@ Build and flash your new firmware. What you should see as output is the same as 
 Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
 
 #### PWM control
-In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through
+In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through creating a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
 
 If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
 
-We will divide this into three parts.
+So to reiterate: We will divide this into three parts.
 * The first part will cover the common sections used in both method 1 and method 2 and show you how to set up and use the zephyr PWM module
-* The second part will show we can create a custom PWM device and select which GPIO the PWM module should drive
-* The third part will show you how to create a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
+* The second part (Method 1 which is optional) will show we can create a custom PWM device and select which GPIO the PWM module should drive 
+* The third part (Method 2, mandatory) will show you how to create a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
 
 When we are using the nRF Connect SDK, we have several driver options to control the PWM. We have our own drivers that are tailored for the Nordic Semiconductor devices, or we can use Zephyr's drivers, which will use Nordic's drivers "underneath the hood". For this course we will use Zephyr's PWM drivers. 
 
