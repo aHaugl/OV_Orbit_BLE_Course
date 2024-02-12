@@ -1056,7 +1056,7 @@ and open prj.conf and replace the name of
 ```
 with something custom for your device.
 
-## Prepare the advertise packet
+### Prepare the advertise packet
 Declare an array `ad[]` and `sd[]` of type [struct bt_data](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data). It should look like this
 
 
@@ -1280,7 +1280,7 @@ _sol)
 
 </br>
 
-## STEP 6 - Characteristic Notifications
+## Step 6 - Characteristic Notifications
 We do not want to keep having to ask our peripheral about the last pressed button all the time. It requires a lot of read requests and read response packets on the air, which is not very power efficient. Therefore we have something called "notifications", which allows the peripheral to push changes to the central whenever they occur. This is set using something called Client Characteristic Configuration Descriptor (CCCD or CCC). The first thing we need to do is to add this descriptor to our characteristic. Do this by adding the last line to your Service macro in remote.c:
 
 ```C
