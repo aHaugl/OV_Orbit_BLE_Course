@@ -1,0 +1,14 @@
+
+
+
+
+Orbit:
+1.          Edvin   |   Krl     |   Marte   |   Andreas |           Tot: 4
+3.          Edvin   |   Krl     |   Marte   |   Andreas |           Tot: 4
+4.          Edvin   |   Krl     |           |   Andreas |           Tot: 3
+
+
+OmegaV:
+8.          Edvin   |   Krl     |   Marte   |   Andreas |           Tot: 4
+10.         Edvin   |   Raoul   |   Marte   |   Michal  |           Tot: 4
+14.         Edvin   |           |   Maria   |   Andreas |           Tot: 4
