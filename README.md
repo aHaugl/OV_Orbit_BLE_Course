@@ -490,10 +490,11 @@ PWM Period and PWM Duty Cycle |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
 
 
-**Challenge:** Before we connect our motor in method 1 and 2 in the coming sections, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open the [PWM API reference](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html) and look for the description for ['pwm_set_dt()'](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html#c.pwm_set_dt). This function `static inline int pwm_set_dt(const struct pwm_dt_spec *spec, uint32_t period, uint32_t pulse)` takes in a period and a pulse. Looking at our servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), we see that we should have a period of 20ms, and a duty cycle between 1 and 2 ms. Try to set a PWM signal of 1.5ms, with a period of 20ms. 
+**Challenge:** Before we connect our motor in method 1 and 2 in the coming sections, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open the [PWM API reference](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html) and look for the description for ['pwm_set_dt()'](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html#c.pwm_set_dt). Notice what the function takes as inputs and look at the servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), to find the matching parameters you should call this function with. 
 
 *Hint: the `spec` parameter is our pwm_led0. Since it requires a pointer, you need to use `&pwm_led0` when you use it in pwm_set_dt().*
-
+*Hint 2: If you're struggling with finding a fitting parameter for pulse/duty cycle, try to set the pulse parameter to 1.5ms
+ 
 If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK. That is good and all, but we originally used LED1 for something else (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
 
 Before we do so, here's how my motor_control.c looks after this step.
