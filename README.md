@@ -534,7 +534,7 @@ An overlay file is as the name implies: A file that lays itself over the top of 
 
 Managing multiple applications through overlay files | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.5.png" width="1000"> |
 
 </br>
 
