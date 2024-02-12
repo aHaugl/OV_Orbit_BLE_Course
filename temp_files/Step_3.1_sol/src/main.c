@@ -19,9 +19,8 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #define RUN_LED_BLINK_INTERVAL 1000
 
 #define SERVO_MOTOR    DT_NODELABEL(servo)
-#define PWM_SERVO_MIN_DUTY_CYCLE  DT_PROP(SERVO_MOTOR, min_pulse)
-#define PWM_SERVO_MAX_DUTY_CYCLE  DT_PROP(SERVO_MOTOR, max_pulse)
-
+#define PWM_SERVO_MIN_DUTY_CYCLE 10000000
+#define PWM_SERVO_MAX_DUTY_CYCLE 20000000
 
 /* Callbacks */
 void button_handler(uint32_t button_state, uint32_t has_changed)
