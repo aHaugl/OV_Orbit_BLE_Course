@@ -494,7 +494,9 @@ PWM Period and PWM Duty Cycle |
 
 *Hint: the `spec` parameter is our pwm_led0. Since it requires a pointer, you need to use `&pwm_led0` when you use it in pwm_set_dt().*
 *Hint 2: If you're struggling with finding a fitting parameter for pulse/duty cycle, try to set the pulse parameter to 1.5ms
- 
+
+If you find that the changes you made to your overlay file were not included in your build, you may have to perform a "pristine build" or even completely remove your build folder and build again to make the changes present in your new firmware.
+
 If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK. That is good and all, but we originally used LED1 for something else (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
 
 Before we do so, here's how my motor_control.c looks after this step.
