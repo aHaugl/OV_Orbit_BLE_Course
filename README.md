@@ -182,7 +182,7 @@ Try adding `dk_leds_init()` to your configure_dk_buttons_leds() function. Since 
 
 You may see that if you try to compile the sample after adding a function from the `dk_buttons_and_leds.h`, it will fail. The reason for this is that while we included the `dk_buttons_and_leds.h`, we didn't include the dk_buttons_and_leds.c file yet. This means that the compiler will not find the definitions of the functions that the header file claims that we have. We need to tell our application how to add the `dk_buttons_and_leds.c` file. There are two ways of doing this. If you create your own files, you can add them manually, which we will do later for some custom files. But for now we want to add a file that belongs to NCS, and therefore we include it using configuration switches.
 
-From the DK buttons and LEDs documentation page https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that `CONFIG_DK_LIBRARY` also selects another configuration which we will use: `CONFIG_GPIO`
+From the [DK buttons and LEDs](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html) documentation page we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that [`CONFIG_DK_LIBRARY`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY) also selects another configuration which we will use: `CONFIG_GPIO`
 https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY
 
 <br>
@@ -192,7 +192,6 @@ To `prj.conf` add:
 # Configure buttons and LEDs.
 CONFIG_DK_LIBRARY=y
 ```
-
 This snippet will enable the GPIOs and include the DK library. The way this is done in NCS/Zephyr is a bit complex. If you are interrested in how this works, you can look into the CMakeLists.txt file found in NCS\nrf\lib\CMakeLists.txt, and see how it includes files and folders based on the configurations. For now we will accept that this is just how it works.
 
 <br>
@@ -232,6 +231,8 @@ void my_callback_function(uint8_t my_8_bit_parameter, uint16_t my_16_bit_paramet
 
  **Challenge:** </br>
 ***Without peeking at the solution below, try to implement your button handler so that it stores the button number of the button that was pressed, and prints it in the log only when the button was pressed (and not released). Try printing out the parameters `button_state` and `has_changed` to see what they look like when you press the buttons. The library we're using contains a [button_handler callback function](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#c.button_handler_t) that can be used***
+</br>
+
 </br>
 At this point, your main.c file should look something like this. You can use this as a template if you got stuck somewhere before this point:
 
@@ -362,7 +363,7 @@ Build and flash your new firmware. What you should see as output is the same as 
 
 Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
 
-### PWM control
+## PWM control
 In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through
 
 If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
@@ -516,16 +517,17 @@ Managing multiple applications through overlay files |
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
 
-
 </br>
+
 Start by creating a file called `nrf52840dk_nrf52840.overlay`. You can do this by clicking the "No overlay files detected, click here to create one" button under Config files and Devicetree in the Application tree in the VS Code extension. This will create a .overlay file with the same name as the board selected for the build in your project folder on the same level as the `prj.conf` and `CMakeLists.txt` file. You can also create this file manually but make sure that it follows the mentioned naming and location convention.
+
 </br>
 
 If you've managed to drive one of the LEDs with a PWM instance and set up the .overlay file as described you can now either choose to do the optional Method 1, which will show you how to create a custom PWM device and select which GPIO it should drive through the means of using the pwm_led compatible and pin control, or to continue directly to Method 2, which will show you how to do the same *but* by defining and creating your own custom device through a .yaml. I personally recommend you to do method 2 and if you have time you can go through the steps to do method 1.
 
-If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). `Step_3.0_sol` works as a jump start for both method 1 and method 2.
+If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files\Step_3.0_sol](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). This partial solution also works as a jump start for both method 2 and the optional steps for method 1.
 
-### Optional steps for Method 1: Modify the pwm_led0 instance to drive the servo motor
+## Method 1 - Optional steps: Modify the pwm_led0 instance to drive the servo motor
 If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
 [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
