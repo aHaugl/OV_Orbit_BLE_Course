@@ -490,7 +490,7 @@ PWM Period and PWM Duty Cycle |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
 
 
-**Challenge:** Before we connect our motor, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open pwm.h (ctrl + p, and search for pwm.h), and look at the description for pwm_set_dt(). Looking at our servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), we see that we should have a period of 20ms, and a duty cycle between 1 and 2 ms. Try to set a PWM signal of 1.5ms, with a period of 20ms. 
+**Challenge:** Before we connect our motor in method 1 and 2 in the coming sections, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open the [PWM API reference](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html) and look for the description for ['pwm_set_dt()'](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html#c.pwm_set_dt). This function `static inline int pwm_set_dt(const struct pwm_dt_spec *spec, uint32_t period, uint32_t pulse)` takes in a period and a pulse. Looking at our servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), we see that we should have a period of 20ms, and a duty cycle between 1 and 2 ms. Try to set a PWM signal of 1.5ms, with a period of 20ms. 
 
 *Hint: the `spec` parameter is our pwm_led0. Since it requires a pointer, you need to use `&pwm_led0` when you use it in pwm_set_dt().*
 
