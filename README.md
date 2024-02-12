@@ -363,7 +363,7 @@ Build and flash your new firmware. What you should see as output is the same as 
 
 Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
 
-## PWM control
+#### PWM control
 In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through
 
 If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
@@ -887,7 +887,7 @@ Use this to set different angles, depending on what button you pressed.
 
 If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [partial solution step 3.2](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
 
-### Step 4 - Adding Bluetooth
+# Step 4 - Adding Bluetooth
 It is finally time to add bluetooth to our project. A hint was given in the project name, but in case you missed it, we will write an application that mimics some sort of bluetooth remote, where we will be able to send button presses to a connected Bluetooth Low Energy Central. We will also add the oppurtunity to write back to the remote control. That may not be a typical feature for a remote control, but for the purpose of learning how to communicate in both directions we will add this. The connected central can either be your phone, a computer, or another nRF52. For this guide we will use the DK we've been working with so far and a smartphone with nRF Connect for iOS or Android.
 
 This part will be similar to the [BLE fundamentals course](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/) on our academy pages, which we recommend that you go through in your own time to pick up some other details that won't be mentioned in this hands-on exercise. 
