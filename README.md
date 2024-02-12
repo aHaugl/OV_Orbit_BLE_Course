@@ -601,7 +601,7 @@ So our pin numbers are set in pwm0_default and pwm0_sleep. Let us start by chang
 };
 ```
 
-You can call them whatever you like. I used pwm0_custom and pwm0_csleep. The last part we need to do is that we need to define pwm0_custom and pwm0_csleep. Try right clicking the pwm0_default and pwm0_sleep in the .dts file to see hwat they look like by default:
+You can call them whatever you like. I used pwm0_custom and pwm0_csleep. The last part we need to do is that we need to define pwm0_custom and pwm0_csleep. Try right clicking the pwm0_default and pwm0_sleep in the .dts file to see what they look like by default:
 
 ```C
 &pinctrl {
