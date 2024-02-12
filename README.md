@@ -507,7 +507,7 @@ int motor_init(void)
 }
 ```
 
-## Overlay Files
+#### Overlay Files
 As mentioned earlier all boards defined in Zephyr have their own board files containing all the information about the predefined devices on the board such as GPIOs, LEDs, pwm instances and their default configuration. We can make changes to the device tree files to change e.g what pins are used for LEDs, but making changes directly to a .dts file will cause *every other project that uses these board files to also use the same configuration*. So to keep a good project-to-code-base-separation we will be using overlay files instead.
 
 
@@ -527,7 +527,7 @@ If you've managed to drive one of the LEDs with a PWM instance and set up the .o
 
 If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files\Step_3.0_sol](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). This partial solution also works as a jump start for both method 2 and the optional steps for method 1.
 
-## Method 1 - Optional steps: Modify the pwm_led0 instance to drive the servo motor
+#### Method 1 - Optional steps: Modify the pwm_led0 instance to drive the servo motor
 If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
 [pwm_led device](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L48-L53)  default configuration | 
@@ -677,7 +677,7 @@ Use this to set different angles, depending on what button you pressed.
 If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [the solution for step 3, method 1](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.1_sol).
 
 
-## Method 2 - Create a custom motor device and use the PWM module to drive a motor
+#### Method 2 - Create a custom motor device and use the PWM module to drive a motor
 For this method we will be using what is called a .yaml file to define our new custom device. This file is will be similar to what I showed you earlier for the [`pwm-leds.yaml`](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)
 
 Create a new folder in your project called `"dts"` and within this folder create a new folder named `"bindings"`. Inside `"bindings"` create a file named `"pwm-servo.yaml"`. Inside `pwm-servo.yaml` add the following:
@@ -887,7 +887,7 @@ Use this to set different angles, depending on what button you pressed.
 
 If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [partial solution step 3.2](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.2_sol).
 
-# Step 4 - Adding Bluetooth
+## Step 4 - Adding Bluetooth
 It is finally time to add bluetooth to our project. A hint was given in the project name, but in case you missed it, we will write an application that mimics some sort of bluetooth remote, where we will be able to send button presses to a connected Bluetooth Low Energy Central. We will also add the oppurtunity to write back to the remote control. That may not be a typical feature for a remote control, but for the purpose of learning how to communicate in both directions we will add this. The connected central can either be your phone, a computer, or another nRF52. For this guide we will use the DK we've been working with so far and a smartphone with nRF Connect for iOS or Android.
 
 This part will be similar to the [BLE fundamentals course](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/) on our academy pages, which we recommend that you go through in your own time to pick up some other details that won't be mentioned in this hands-on exercise. 
@@ -1189,7 +1189,7 @@ _sol). You can use this in case you got stuck somewhere. Please note that I also
 
 </br>
 
-### Step 5 - Adding our first Bluetooth Service
+## Step 5 - Adding our first Bluetooth Service
 Let us add the service that we claim that we have when we advertise. We will use the macro [BT_GATT_SERVICE_DEFINE](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_SERVICE_DEFINE)to add our service. It is quite simple at the same time as it is quite complex. When we use this macro to create and add our service, the rest is done "under the hood" of NCS/Zephyr. By just adding this snippet to remote.c:
 
 
@@ -1280,7 +1280,7 @@ _sol)
 
 </br>
 
-### STEP 6 - Characteristic Notifications
+## STEP 6 - Characteristic Notifications
 We do not want to keep having to ask our peripheral about the last pressed button all the time. It requires a lot of read requests and read response packets on the air, which is not very power efficient. Therefore we have something called "notifications", which allows the peripheral to push changes to the central whenever they occur. This is set using something called Client Characteristic Configuration Descriptor (CCCD or CCC). The first thing we need to do is to add this descriptor to our characteristic. Do this by adding the last line to your Service macro in remote.c:
 
 ```C
@@ -1434,7 +1434,7 @@ Now try to call this function from the button handler, check the return value an
 </br>
 </br>
 
-### Step 7 - Writing Back to our Peripheral
+## Step 7 - Writing Back to our Peripheral
 So now we can send button presses from our remote to our phone. Pretty cool. But since we have a wireless device connected to our phone, and this device has a motor connected to it, it would be nice to be able to control the motor from the phone, right? For this we could use the same characteristic that we already have to send communications both ways, but let us create a new characteristic for this purpose.
 
 **Todo:**</br>
