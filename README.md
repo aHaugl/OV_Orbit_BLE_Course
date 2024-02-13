@@ -985,7 +985,7 @@ For most Bluetooth Low Energy, these four headers and these configurations will 
 Let us start by finding a function to *enable bluetooth*. Inspect [The Generic Access Profile API](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html) and see if you find it. *(Hint: It is [this one](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable)).
 
 <br>
-If you've found the [correct API function](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable), we can see by inspecting it that this is a function that returns an int and it takes an input `bt_ready_cb_t. Follow the definition of [bt_ready_cb_t](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_ready_cb_t) you will see that the bt_ready_cb_t is defined as follows:
+If you've found https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable, we can see by inspecting it that this is a function that returns an int and it takes an input `bt_ready_cb_t. Follow the definition of [bt_ready_cb_t](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_ready_cb_t) you will see that the bt_ready_cb_t is defined as follows:
 
 ```C
 typedef void (*bt_ready_cb_t)(int err)
@@ -1014,6 +1014,17 @@ static K_SEM_DEFINE(bt_init_ok, 0, 1);
 
 After `bt_enable(bt_ready_callback)` try to [take the semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html#taking-a-semaphore), so that the application waits until it is given from somewhere else, and then try to give it in the bt_ready callback. </br>
 *Hint: The k_sem_take() requires a timeout. You can use K_FOREVER.*
+After you've taken the semaphore you also need to give it somewhere. In the callback for checking if Bluetooth is ready and properly set up, give the semaphore after checking the error. It should look like this:
+
+```C
+void bt_ready_callback(int err)
+{
+    if (err) {
+        LOG_ERR("bt_enable returned %d", err);
+    }
+    k_sem_give(&bt_init_ok);
+}
+```
 
 Now is a good time to build and flash your firmware to see if you've set everything up properly. If your successfull in this step and if you connect to a terminal like we've done earlier you should see something like the following:
 
