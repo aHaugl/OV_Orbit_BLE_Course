@@ -1014,6 +1014,9 @@ static K_SEM_DEFINE(bt_init_ok, 0, 1);
 
 After `bt_enable(bt_ready_callback)` try to [take the semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html#taking-a-semaphore), so that the application waits until it is given from somewhere else, and then try to give it in the bt_ready callback. </br>
 *Hint: The k_sem_take() requires a timeout. You can use K_FOREVER.*
+
+<br>
+
 After you've taken the semaphore you also need to give it somewhere. In the callback for checking if Bluetooth is ready and properly set up, give the semaphore after checking the error. It should look like this:
 
 ```C
