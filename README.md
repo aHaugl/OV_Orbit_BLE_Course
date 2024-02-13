@@ -210,7 +210,7 @@ Open `dk_buttons_and_leds.h` or the DK buttons and LEDS [library API page](https
 Build and flash your firmware. If you've done everything "as intended" you should now see that LED1 toggles on and off with a 1 sec interval.
 
 </br>
-Now, let us look for a function that can enable the buttons in the `dk_buttons_and_leds.h` file or [Library API](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html). Remember to check the return value of the button init function. When you have a button handler set up, try to use it to print something in the log, so that we can see that it triggers correctly. We can tweak the button handler later.
+Now, let us look for a function that can enable the buttons in the `dk_buttons_and_leds.h` file or [library API page](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html) Remember to check the return value of the button init function. When you have a button handler set up, try to use it to print something in the log, so that we can see that it triggers correctly. We can tweak the button handler later.
 
 </br>
 
