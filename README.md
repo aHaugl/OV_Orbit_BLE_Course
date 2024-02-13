@@ -1220,7 +1220,7 @@ BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
 And voila! We have our first Bluetooth Low Energy service. Try to connect to it using nRF Connect, and see that you can see the service.
 Our first service | 
 ------------ |
-<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.2.png" width="1000"> |
+<img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.2.png.jpg" width="1000"> |
 
 However, a service without any characteristics isn't very impressive. Let us add a characteristic that we can read from our Central. </br>
 We start by defining a new UUID for our characteristic. Basically, you can copy your previous UUID define and increment the two bytes that you set to 0001 to 0002:
