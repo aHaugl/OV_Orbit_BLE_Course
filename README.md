@@ -446,7 +446,7 @@ To ensure that we've enabled the PWM driver properly we want to see if we can dr
 
 The first objective is to define and fetch this device from the .dts file into our .c files. We will do this using the [Devicetree API](https://docs.zephyrproject.org/latest/build/dts/api/api.html#devicetree-api) and the [PWM API documentation](https://docs.zephyrproject.org/latest/hardware/peripherals/pwm.html).
 
-Under [node intentifiers and helpers](https://docs.zephyrproject.org/latest/build/dts/api/api.html#node-identifiers-and-helpers) you can find that there are various identifiers such as `DT_PATH()`, `DT_NODELABEL()`, `DT_ALIAS()`, and `DT_INST()`, and I mentioned that the pwmleds instance had an alias. Use `DT_ALIAS()` to define a PWM_LED0 device by adding the following near the top of main.c
+Under [node intentifiers and helpers](https://docs.zephyrproject.org/latest/build/dts/api/api.html#node-identifiers-and-helpers) you can find that there are various identifiers such as `DT_PATH()`, `DT_NODELABEL()`, `DT_ALIAS()`, and `DT_INST()`, and I mentioned that the pwmleds instance had an alias. Use `DT_ALIAS()` to define a PWM_LED0 device by adding the following near the top of motor_control.c
 
 ```C
 #define PWM_LED0	DT_ALIAS(pwm_led0)
