@@ -1068,9 +1068,9 @@ Add this a suitable place, near the top, in remote.c:
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME)-1)
 ```
 and open prj.conf and replace the name of 
-```
-[CONFIG_BT_DEVICE_NAME](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_BT_DEVICE_NAME).="Remote_controller"
-```
+
+*[CONFIG_BT_DEVICE_NAME](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_BT_DEVICE_NAME).="Remote_controller"*
+
 with something custom for your device.
 
 ### Prepare the advertise packet
