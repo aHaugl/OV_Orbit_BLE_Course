@@ -1219,7 +1219,7 @@ BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
 
 And voila! We have our first Bluetooth Low Energy service. Try to connect to it using nRF Connect, and see that you can see the service.
 
-Our first service Android | Our first service iOS 
+Our first service Android | Our first service iOS |
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.2.png.jpg" width="300"> | <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/iOS/custom_service_mobile.jpg" width="300"> |
 
