@@ -204,7 +204,7 @@ Near the top of main.c add a specific LED and a blinking interval:
 #define RUN_LED_BLINK_INTERVAL 1000
 ```
 
-Open `dk_buttons_and_leds.h` or the [DK buttons and LEDS library API page]https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#dk-buttons-and-leds) to see if there is any ways you can turn on and off this LED from your main function. Our goal is to toggle the LED in a `for(;;)` loop (equivalent to a while(true) loop). There are several ways to do this. Try to find one that works. </br>
+Open `dk_buttons_and_leds.h` or the [DK buttons and LEDS library API page](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#dk-buttons-and-leds) to see if there is any ways you can turn on and off this LED from your main function. Our goal is to toggle the LED in a `for(;;)` loop (equivalent to a while(true) loop). There are several ways to do this. Try to find one that works. </br>
 *Hint: You can use k_sleep() to wait a given amount of time, and there is a macro called K_MSEC() that takes an input of ms, and converts it to ticks. To use k_sleep you will need to add `#include <zephyr/kernel.h>` to the top of main.c*
 
 Build and flash your firmware. If you've done everything "as intended" you should now see that LED1 toggles on and off with a 1 sec interval.
