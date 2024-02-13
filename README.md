@@ -1128,7 +1128,7 @@ To your bluetooth init, after you've taken the semaphore from bt_enable, add the
 Now your device should advertise if you flash it with the latest build. Open nRF Connect for Desktop/iOS/Android and start scanning for the device. If there are many BLE devices nearby, try to sort by RSSI (Received Signal Strength Indicator), or ad a filter to the advertising name. 
 
 Scan using nRF Connect for Mobile (Android) | Listed UUIDs | 
------------- |
+------------ | ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.0.png" width="300"> | <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.1.png" width="300"> |
 
 If you select this device, you should be able to see some information from the advertisements. The name should appear as we set it in our prj.conf, and the service should match the service UUID should be visible, and match the service UUID that we defined in remote.h.
@@ -1220,7 +1220,7 @@ BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
 And voila! We have our first Bluetooth Low Energy service. Try to connect to it using nRF Connect, and see that you can see the service.
 
 Our first service Android | Our first service iOS | 
------------- |
+------------ | ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.2.png.jpg" width="300"> | <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/iOS/custom_service_mobile.jpg" width="300"> |
 
 However, a service without any characteristics isn't very impressive. Let us add a characteristic that we can read from our Central. </br>
