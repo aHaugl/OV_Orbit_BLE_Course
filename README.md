@@ -770,7 +770,7 @@ Right click `&pwm0` in your overlay and click `go to definition `. You should se
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.7.png" width="1000"> |
 
-Copy and paste the [&pwm0 instance](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L199C1-L204C3) to your overlay file, above the  
+Copy and paste the [&pwm0 instance](https://github.com/nrfconnect/sdk-zephyr/blob/93ad09a7305328387936b68059b63f64efd44f60/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840.dts#L199C1-L204C3) to your overlay file, above the servo instance.
 
 Next right click `&pwm0_default` and click "go to definition, which should take you here:
 
