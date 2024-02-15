@@ -3,7 +3,7 @@
 #define LOG_MODULE_NAME motor_control
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
-#define SERVO_MOTOR    DT_NODELABEL(servo)
+#define SERVO_MOTOR    DT_NODELABEL(pwm_led0)
 static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(SERVO_MOTOR);
 
 #define PWM_PERIOD_NS 20000000
