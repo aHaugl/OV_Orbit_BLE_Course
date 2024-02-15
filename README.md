@@ -1212,8 +1212,11 @@ Although it may not be completely clear, what you need to know here is that we f
 **Challenge:** </br>
 ***Forward these callbacks (the bluetooth_callbacks parameter) to bluetooth init, and use bt_conn_cb_register() to register them to our Bluetooth stack. Do so before you call bt_enable(). In order to forward the bluetooth_callbacks I suggest that you make the bluetooth_init() function take them in as a pointer. If you are stuck, you will find a solution below.***
 
+
 </br>
 </br>
+
+If you're now trying to connect to your device using nRF Connect for iOS and connect to a terminal you may see a warning stating `Ignoring data for unknown channel ID 0x003a`. You can safely disregard this warning message. Apple devices will initiate this request after connection is established, but it will always be ignored by our stack. 
 
 If you followed the guide this far, your files should look something like [this](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_4.1
 _sol). You can use this in case you got stuck somewhere. Please note that I also added some new code to the connected and disconnected events in main.c, and a current_conn parameter to keep track of the current connection. 
@@ -1221,7 +1224,7 @@ _sol). You can use this in case you got stuck somewhere. Please note that I also
 </br>
 
 ## Step 5 - Adding our first Bluetooth Service
-Let us add the service that we claim that we have when we advertise. We will use the macro [BT_GATT_SERVICE_DEFINE](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_SERVICE_DEFINE)to add our service. It is quite simple at the same time as it is quite complex. When we use this macro to create and add our service, the rest is done "under the hood" of NCS/Zephyr. By just adding this snippet to remote.c:
+Let us add the service that we claim that we have when we advertise. We will use the macro [BT_GATT_SERVICE_DEFINE](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_SERVICE_DEFINE) to add our service. It is quite simple at the same time as it is quite complex. When we use this macro to create and add our service, the rest is done "under the hood" of NCS/Zephyr. By just adding this snippet to remote.c:
 
 
 ```C
@@ -1237,8 +1240,7 @@ Our first service Android | Our first service iOS |
 ------------ | ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step4.2.png.jpg" width="300"> | <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/iOS/custom_service_mobile.jpg" width="300"> |
 
-However, a service without any characteristics isn't very impressive. Let us add a characteristic that we can read from our Central. </br>
-We start by defining a new UUID for our characteristic. Basically, you can copy your previous UUID define and increment the two bytes that you set to 0001 to 0002:
+However, a service without any characteristics isn't very impressive. Let us add a characteristic that we can read from our Central. We start by defining a new UUID for our characteristic. Basically, you can copy your previous UUID define and increment the two bytes that you set to 0001 to 0002:
 
 ```C
 /* This code snippet belongs to remote.h */
@@ -1303,7 +1305,7 @@ static ssize_t read_button_characteristic_cb(struct bt_conn *conn, const struct 
 
 ***Before we try to connect again, create a function in remote.c that we can call from main.c (add declaration in remote.h) that changes the value of the parameter `button_value` based on an input parameter. Call it "set_button_value()" and call it in the button_handler from main.c, with the button_pressed parameter as the input.***
 
-Now, try to connect to your device using nRF Connect, and see that you have a characteristic that you can read using the read button in nRF Connect (the button with the down pointing arrow). Whenever you push a button on your DK and read it again, you should see that the is updated. The items we've covered in this part and in the next part of the hands on exercise is largely expanded upon in [Lesson 4](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/lessons/lesson-4-bluetooth-le-data-exchange/) in the Bluetooth course on DevAcademy, and once again I am recommending you to have a go at that course in your own time to further expand your knowledge on both how BLE works and how to use it in NCS/Zephyr.
+Now, try to connect to your device using nRF Connect, and see that you have a characteristic that you can read using the read button in nRF Connect (the button with the down pointing arrow). Whenever you push a button on your DK and read it again, you should see that the is updated. The items we've covered in this part and in the next part of the hands on exercise is largely expanded upon in [Lesson 4](https://academy.nordicsemi.com/courses/bluetooth-low-energy-fundamentals/lessons/lesson-4-bluetooth-le-data-exchange/) in the Bluetooth course on DevAcademy, so have a look at this after the hands on to inspect this topic closer.
 
 </br>
 
@@ -1336,6 +1338,7 @@ In a similar way to what we did earlier, we can use the BT_GATT_CCC macro defini
 </br></br>
 The implementation of this callback itself is not that complex. We don't have to return anything. We'll just log that notifications were either enabled or disabled. 
 
+```C
  /* This code snippet belongs to remote.c */
 void button_chrc_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
 {
@@ -1459,11 +1462,12 @@ int send_button_notification(struct bt_conn *conn, uint8_t value)
 }
 ```
 
-This one is a lot to take in, but let us see what is going on. In send_button_notification we take two input parameters. The pointer to the connection that we want to send the notification to, and the value of the characteristic, which is the actual payload data being transmitted. If you were to implement this from scratch, start by using the function bt_gatt_notify_cb() and look at what parameters it takes. The params parameter is the struct bt_gatt_notify_params. It holds a lot, but we only populate what we need in our case. We need the attribute, which points to the characteristic where we are actually sending the notification, and we need the value, the length of the value, and a callback function. This callback may be very useful in some cases where you are sending a lot of data, to keep track on when the data is sent. We will just use it to print that we have successfully sent a notification.
+This one is a lot to take in, but let us see what is going on: In send_button_notification we take two input parameters. The pointer to the connection that we want to send the notification to, and the value of the characteristic, which is the actual payload data being transmitted. If you were to implement this from scratch, start by using the function bt_gatt_notify_cb() and look at what parameters it takes. The params parameter is the struct bt_gatt_notify_params. It holds a lot, but we only populate what we need in our case. We need the attribute, which points to the characteristic where we are actually sending the notification, and we need the value, the length of the value, and a callback function. This callback may be very useful in some cases where you are sending a lot of data, to keep track on when the data is sent. We will just use it to print that we have successfully sent a notification.
+
 </br>
-</br>
+
 Now try to call this function from the button handler, check the return value and see if you can send a notification from your peripheral to the connected central. Remember to enable notifications on the characteristic from your phone by pressing the button with the three arrows pointing down.
-</br>
+
 </br>
 
 ## Step 7 - Writing Back to our Peripheral
