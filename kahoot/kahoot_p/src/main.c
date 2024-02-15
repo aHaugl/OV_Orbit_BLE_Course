@@ -12,7 +12,7 @@
 
 #define LOG_MODULE_NAME app
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
-#define MY_NAME "And1"
+#define MY_NAME "IDAR"
 
 static struct bt_conn *current_conn;
 volatile uint8_t current_ans = 0;
