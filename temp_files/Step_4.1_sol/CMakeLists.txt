@@ -7,8 +7,9 @@ project(remote_controller)
 
 target_sources(app PRIVATE src/main.c)
 
+#Step 3.1 - add custom files folder
 # Custom files and folders
-
+#Step 4.0.1 add remote.c
 target_sources(app PRIVATE
     src/custom_files/motor_control.c;
     src/custom_files/remote.c;
