@@ -2,11 +2,11 @@
 # Bluetooth_Low_Energy_Introduction
 
 **Prerequisites:** 
-* Make sure that you have a laptop with OS preferably within Tier 1 support range from the supported OS matrix found at https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/recommended_versions.html. From previous years we've spent quite a lot of time on day one on debugging various arcane OS's that has a varying degree of support for the SDK to ensure more time for the actual hands on part of the course.
+* Make sure that you have a laptop with OS preferably within Tier 1 support range from the supported OS matrix found at https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/recommended_versions.html. 
 
 * Read through the first lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/
 
-* Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.5.1. You will also find the required SW components listed under the SW Requirements section
+* Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.6.2. Setting up the toolchain and SDK may take some time the first time, so you may get a better experience during the course days if you attempt or successfully perform the installation step before the first course day. You will also find the required SW components listed under the SW Requirements section
 
 * If you're able to do excersize 1 in lesson 1, you can also do lesson 2 to familiarize yourself a bit with how to build and flash a sample that comes with the SDK. Do note that unless you already have a development kit from Nordic available that is supported in nRF Connect SDK you won't be able to flash the firmware to the DK, but it's good that you've gotten to this part once before the course
 
@@ -27,7 +27,7 @@ For participants attending this course we will hand out said HW requirements at 
 As mentioned in the prerequisites, you'll need:
 - [nRF Connect for Desktop](https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-desktop)
 - [Visual Studio Code](https://code.visualstudio.com/)
-- [nRF Connect for Visual Studio Code plugin](https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-VS-Code) (If you want to, you can use *west* directly instead of nRF Connect for Visual Studio code, but we will use VS Code in this guide).
+- [nRF Connect for Visual Studio Code plugin](https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-VS-Code) (If you want to, you can use *west* in terminal directly instead of nRF Connect for Visual Studio code, but we will use VS Code in this guide since setting it up for terminal requires additional steps).
 - [nRF Command Line Tools](https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download)
 
 The goal for this course is to create a remote controller application that uses BLE to control the position of a PWM servo motor. Breaking this goal down into steps it will be as follows:
@@ -37,21 +37,21 @@ The goal for this course is to create a remote controller application that uses 
 * Learn how to control the custom servo motor device we've created using the buttons available on the Development Kit handed out
 * Learn how to create a custom Bluetooth Low Energy application and to define a custom service with custom value characteristics that we will use to control the servo motor remotely
 
-All resources will be available in this public repository after the course has ended
+All resources will be available in this public repository after the course has ended.
 
 # Tutorial Steps
-### Step 1 - Getting started
+## Step 1 - Getting started
 If you didn't set up the SDK and toolchain by following the steps in the prerequisites then the first item on the agenda is to do this. If you've already succeeded in this, please feel free to have a sneak peek at Step 2 and/or to assist the person next to you
 
 The first step may take some time since you will both download and install both the SDK and Toolchain which is of some size. While waiting 
-Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.5.1
+Perform excersize 1 with v2.x.x steps to set up the SDK https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/exercise-1-1/. In the course we will be using nRF Connect SDK v2.6.2
 Academy NCS Fundamentals exercise 1 steps | 
 ------------ |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step1.1.png" width="1000"> |
 
 </br>
 
-In a Windows installation I recommend that you install the SDK and toolchain close to C:/ in for instance C:/Nordic/ncs. Installing it close to C ensures that you don't run into any "Windows path length" issues. The path may of course vary with your OS
+In a Windows installation I recommend that you install the SDK and toolchain close to C:/ in for instance C:/ncs, which is the default installation path. Installing it close to C ensures that you don't run into any "Windows path length" issues. The path may of course vary with your OS and the default path is different on Windows/MacOS/Linux.
 
 While waiting for the installation downloading you can have a look at the first lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/. This section of text explains how the SDK is set up and which repositories it consists of and briefly mentions how the build system works.
 
@@ -77,7 +77,7 @@ Setup Application from Sample 2/3 |
 
 * Select a folder for your application
 
-I recommend that you create your projects folder outside of the SDK and toolchain folders. For instance within a "my_projects" folder. An example location (for Windows) can be c:\Nordic\SDKs\ncs\my_projects\custom_ble_app\remote_controller.
+I recommend that you create your projects folder outside of the SDK and toolchain folders. For instance within a "my_projects" folder. An example location (for Windows) can be c:\ncs\my_projects\custom_ble_app\remote_controller.
 
 Setup Application from Sample 3/3 | 
 ------------ |
@@ -86,7 +86,7 @@ Setup Application from Sample 3/3 |
 </br>
 
 
-* Verify that the toolchain and SDK matches (both should be version 2.5.1). 
+* Verify that the toolchain and SDK matches (both should be version 2.6.2). Note that the image illustrates how it would look if you have selected v2.5.1.
 * Create a new build configuration
 * Select your board which is the nRF52840dk_nrf52840 
 * Leave everything else as default
@@ -131,7 +131,7 @@ Connect your board to a terminal and observe the output 2/2 |
 If you at an later point in time forget how you built or flash your application you can go back to these steps and repeat them. We will be using this procedure repeatedly throughout the hands on exercise.
 
 
-### Step 2 - Enabling some basic application features
+## Step 2 - Enabling some basic application features
 Congratulations! You have built and flashed our first application. Let's move on by doing some minor modifications. If you explore some of the samples from the *nrf* folder in NCS, you'll see that most of them use our logging module, which is what we will use as well. In order to do so, add the line `#include <zephyr/logging/log.h>` to include the log header. In order to use the log module, we need to add a few things in the prj.conf file. You will find it from the application tab (called remote_controller if you didn't change it) -> Input files -> prj.conf. At this point, it should just say `#nothing here`.
 </br>
 
@@ -162,11 +162,11 @@ Compile and flash the application again, and you should see that it still prints
 
 </br>
 
-#### Configure buttons and LEDs
+### Configure buttons and LEDs
 Before we start adding Bluetooth, we want to set up some LEDs that we can use to indicate that our application is still running, and hasn't crashed. We also want to set up some buttons that we can use later to trigger certain BLE calls.
 Start by including `<dk_buttons_and_leds.h>` in your main.c file.
 
-Next, create a function to initiate the LEDs and buttons. I will call mine 'static void configure_dk_buttons_and_leds(void)'. The first thing we need to do in this function is to enable the LEDs. From the documentation page for DK buttons and LEDS (or by right clicking `#include <dk_buttons_and_leds.h>` and selecting "Go to definition") we can also see two important functions to initialize LEDS and buttons, one of them beeing dk_leds_init().
+Next, create a function to initiate the LEDs and buttons. I will call mine 'static void configure_dk_buttons_and_leds(void)'. The first thing we need to do in this function is to enable the LEDs. From the [documentation page for DK buttons and LEDS](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html) (or by right clicking `#include <dk_buttons_and_leds.h>` and selecting "Go to definition") we can also see two important functions to initialize LEDS and buttons, one of them beeing dk_leds_init().
 
 Try adding `dk_leds_init()` to your configure_dk_buttons_leds() function. Since this function returns and int, we would like to check the return value. 
 
@@ -182,7 +182,7 @@ Try adding `dk_leds_init()` to your configure_dk_buttons_leds() function. Since 
 
 You may see that if you try to compile the sample after adding a function from the `dk_buttons_and_leds.h`, it will fail. The reason for this is that while we included the `dk_buttons_and_leds.h`, we didn't include the dk_buttons_and_leds.c file yet. This means that the compiler will not find the definitions of the functions that the header file claims that we have. We need to tell our application how to add the `dk_buttons_and_leds.c` file. There are two ways of doing this. If you create your own files, you can add them manually, which we will do later for some custom files. But for now we want to add a file that belongs to NCS, and therefore we include it using configuration switches.
 
-From the [DK buttons and LEDs](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html) documentation page we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that [`CONFIG_DK_LIBRARY`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_DK_LIBRARY) also selects another configuration which we will use: `CONFIG_GPIO`.
+From the [DK buttons and LEDs](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html) documentation page we see that to enable this library we will need to add `CONFIG_DK_LIBRARY=y` to our `prj.conf`. By opening the KConfig reference search for this page we can see that [`CONFIG_DK_LIBRARY`](https://docs.nordicsemi.com/bundle/ncs-latest/page/kconfig/index.html#CONFIG_DK_LIBRARY) also selects another configuration which we will use: `CONFIG_GPIO`.
 
 <br>
 
@@ -195,7 +195,7 @@ This snippet will enable the GPIOs and include the DK library. The way this is d
 
 <br>
 
-Now we've enabled and initialized our LEDs, so lets do some blinking. Under https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#api-documentation you can see some masks that you can use as macros for various peripherals connected to various GPIOs on the SoC on the board, among them [DK_LED1](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#c.DK_LED1). Which GPIO these definitions are connected to will be different on different boards (such as a nRF52840DK and a nRF5340DK), and we will at a later point look closer into how you can configure which GPIO which is connected to what device definition. For now we will leave it as it is.
+Now we've enabled and initialized our LEDs, so lets do some blinking. Under the [API documentation](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html#c.DK_LED1) for DK buttons and LEDs you can see some masks that you can use as macros for various peripherals connected to various GPIOs on the SoC on the board, among them [DK_LED1](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html#c.DK_LED1). Which GPIO these definitions are connected to will be different on different boards (such as a nRF52840DK and a nRF5340DK), and we will at a later point look closer into how you can configure which GPIO which is connected to what device definition using pin control. For now we will leave it as it is.
 
 Near the top of main.c add a specific LED and a blinking interval:
 
@@ -204,13 +204,13 @@ Near the top of main.c add a specific LED and a blinking interval:
 #define RUN_LED_BLINK_INTERVAL 1000
 ```
 
-Open `dk_buttons_and_leds.h` or the DK buttons and LEDS [library API page](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#dk-buttons-and-leds) to see if there is any ways you can turn on and off this LED from your main function. Our goal is to toggle the LED in a `for(;;)` loop (equivalent to a while(true) loop). There are several ways to do this. Try to find one that works. </br>
+Open `dk_buttons_and_leds.h` or the DK buttons and LEDS [library API page](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html) to see if there is any ways you can turn on and off this LED from your main function. Our goal is to toggle the LED in a `for(;;)` loop (equivalent to a while(true) loop). There are a couple of options in the API to achieve this. Try to find one that works for you. </br>
 *Hint: You can use k_sleep() to wait a given amount of time, and there is a macro called K_MSEC() that takes an input of ms, and converts it to ticks. To use k_sleep you will need to add `#include <zephyr/kernel.h>` to the top of main.c*
 
 Build and flash your firmware. If you've done everything "as intended" you should now see that LED1 toggles on and off with a 1 sec interval.
 
 </br>
-Now, let us look for a function that can enable the buttons in the `dk_buttons_and_leds.h` file or [library API page](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html) Remember to check the return value of the button init function. When you have a button handler set up, try to use it to print something in the log, so that we can see that it triggers correctly. We can tweak the button handler later.
+Now, let us look for a function that can enable the buttons in the `dk_buttons_and_leds.h` file or [library API page](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html#api_documentation) Remember to check the return value of the button init function. When you have a button handler set up, try to use it to print something in the log, so that we can see that it triggers correctly. We can tweak the button handler later.
 
 </br>
 
@@ -314,8 +314,8 @@ int main(void)
 
 ```
 
-### Step 3 - Motor Control
-The motor that we used is the Tower Pro MG90S. You can find a very simple datasheet [here](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf). For some background information on how PWM motors work, you can check out [this guide](https://www.jameco.com/Jameco/workshop/Howitworks/how-servo-motors-work.html), and these two samples in [this PWM sample repository](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm). We will do our implementation in this exercize similarly to what is done in the second exercise in the PWM repository mentioned.
+## Step 3 - Motor Control
+The motor that we used is the Tower Pro MG90S. You can find a very simple datasheet [here](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf). For some background information on how PWM motors work, you can check out [this guide](https://www.jameco.com/Jameco/workshop/Howitworks/how-servo-motors-work.html), and [this lesson in our Intermediate course on Academy for NCS](https://academy.nordicsemi.com/courses/nrf-connect-sdk-intermediate/lessons/lesson-4-pulse-width-modulation-pwm/)). We will do our implementation in this exercize similarly to what is done in the second exercise in the PWM repository mentioned.
 
 Basically, we want to output a PWM signal, and the duty cycle of the PWM signal determines what angle/position the rotor will maintain. In our case, the motor wants a duty cycle between 1 and 2 ms, and a PWM period of 20ms. 
 
@@ -353,7 +353,7 @@ zephyr_library_include_directories(src/custom_files)
 
 The line pointing to the `motor_control.c` file will include this .c file to your application project. The last line pointing to the folder `src/custom_files` will add that folder to the list of folders where the compiler will look for header files (.h files). 
 
-If everything is done as intended, the project should compile, and we should be able to see our motor_control.c in our application tree as well as shown below. 
+If everything is done correctly, the project should compile, and we should be able to see our motor_control.c in our application tree as well as shown below. 
 
 Application Tree | 
 ------------ |
@@ -383,10 +383,10 @@ Build and flash your new firmware. What you should see as output is the same as 
 
 Congratulations! You have successfully written your first function in a different .c file. Now, let us start adding PWM for our actual motor.
 
-#### PWM control
-In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and pin controls as shown in the [PWM sample repo](https://github.com/aHaugl/samples_for_NCS/tree/main/peripherals/pwm) I referred to earlier, and the second way will be to drive the PWM servo motor through creating a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
+### PWM control
+In this hands on we will implement a PWM device two ways. The first way will be to add the PWM module to drive a LED GPIO, which can be configured to drive a PWM servo motor if you customize the devicetree files and using pin control. The second way will be to drive the PWM servo motor through creating a custom device with custom parameters that you can add to your devicetree and drive said custom device with the PWM module through any available GPIO.
 
-If you wish to play around and learn and understand more about how to customize and use the PWM module in closer detail, feel free to have a look at the mentioned sample in your own time, but for this hands on you can follow along without doing so.
+This README contains steps that are specific to this course, but they are nonetheless similar to the academy lesson I created regarding this topic during the spring of 2024. If you wish to read and do more around this topic or to follow the steps from another angle, please feel free to have a closer look at [lesson 4](https://academy.nordicsemi.com/courses/nrf-connect-sdk-intermediate/lessons/lesson-4-pulse-width-modulation-pwm/) in the official Nordic Semiconductor intermediate course for NCS.
 
 So to reiterate: We will divide this into three parts.
 * The first part will cover the common sections used in both method 1 and method 2 and show you how to set up and use the zephyr PWM module
@@ -438,7 +438,7 @@ If you scroll through this .dts file you can see the predefined devices that are
 		};
 	};
 ```
-Briefly explained, this is a device of the compatible type '[pwm-led](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)', it has an alias, 'pwm_led0', and a name 'pwm_led_0'. It uses the 'pwms'-type instance which in this case is instance 0, has a duty cycle of 20 ms and inverted polarity. In method 2 we will create our own device similarly to how this binding has been created.
+Briefly explained, this is a device of the compatible type '[pwm-led](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)', it has an alias, 'pwm_led0', and a name 'pwm_led_0'. It uses the 'pwms'-type instance which in this case is instance 0, has a duty cycle of 20 ms and inverted polarity. This device has been created and set up in Zephyr and is the default implementation for PWM devices in Zephyr for Nordic Devices, and you can find the [pwm-leds.yaml](https://github.com/nrfconnect/sdk-zephyr/blob/8005d4e87b9bcba25f441a51f4f5d29b541022b9/dts/bindings/led/pwm-leds.yaml#L6) file for this device in the SDK. In method 2 we will create our own device similarly to how this binding has been created.
 
 <br>
 
@@ -490,16 +490,18 @@ PWM Period and PWM Duty Cycle |
 <img src="https://github.com/aHaugl/OV_Orbit_BLE_Course/blob/main/images/Step3.4.png" width="1000"> |
 
 
-**Challenge:** Before we connect our motor in method 1 and 2 in the coming sections, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open the [PWM API reference](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html) and look for the description for ['pwm_set_dt()'](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/hardware/peripherals/pwm.html#c.pwm_set_dt). Notice what the function takes as inputs and look at the servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), to find the matching parameters you should call this function with. 
+**Challenge:** Before we connect our motor in method 1 and 2 in the coming sections, let us try to generate a PWM signal using our LED. You can give this a go without looking at the solution below. Open the [PWM API reference](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/hardware/peripherals/pwm.html) and look for the description for ['pwm_set_dt()'](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/hardware/peripherals/pwm.html#c.pwm_set_dt). Notice what the function takes as inputs and look at the servo motor's [data sheet](https://www.electronicoscaldas.com/datasheet/MG90S_Tower-Pro.pdf), to find the matching parameters you should call this function with. 
 
 *Hint: the `spec` parameter is our pwm_led0. Since it requires a pointer, you need to use `&pwm_led0` when you use it in pwm_set_dt().*
 *Hint 2: If you're struggling with finding a fitting parameter for pulse/duty cycle, try to set the pulse parameter to 1.5ms
 
 If you find that the changes you made to your overlay file were not included in your build, you may have to perform a "pristine build" or even completely remove your build folder and build again to make the changes present in your new firmware.
 
-If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK. That is good and all, but we originally used LED1 for something else (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
+If you managed to set the duty cycle of 1.5ms, you should see a faint light on LED1 on your DK (it should be fainter than the status LED from the previous part). 
 
-Before we do so, here's how my motor_control.c looks after this step.
+That is good since we now have verified that our pwm driver is enabled, but we originally used LED1 for as the Status LED (showing us that the main() loop was running), so ideally we want to use another pin for PWM control. To do this, we need to add something called an overlay file.
+
+Here is how my here's how my motor_control.c looks after this step.
 ```C
 #include "motor_control.h"
 
@@ -530,7 +532,7 @@ int motor_init(void)
 }
 ```
 
-#### Overlay Files
+### Overlay Files
 As mentioned earlier all boards defined in Zephyr have their own board files containing all the information about the predefined devices on the board such as GPIOs, LEDs, pwm instances and their default configuration. We can make changes to the device tree files to change e.g what pins are used for LEDs, but making changes directly to a .dts file will cause *every other project that uses these board files to also use the same configuration*. So to keep a good project-to-code-base-separation we will be using overlay files instead.
 
 An overlay file is as the name implies: A file that lays itself over the top of the device tree or project configurations and is tailored to this specific type of device. The way that it works is that the compiler will first read the board file (.dts file), and then it will look for an overlay file. If it finds one, then all the settings found in the .overlay file will overwrite the default settings from the .dts file, but only for the current project. This way we can have multiple devices sharing a foundational code base where each device becomes unique through its own custom .overlay file
@@ -544,13 +546,14 @@ Managing multiple applications through overlay files |
 Start by creating a file called `nrf52840dk_nrf52840.overlay`. You can do this by clicking the "No overlay files detected, click here to create one" button under Config files and Devicetree in the Application tree in the VS Code extension. This will create a .overlay file with the same name as the board selected for the build in your project folder on the same level as the `prj.conf` and `CMakeLists.txt` file. You can also create this file manually but make sure that it follows the mentioned naming and location convention.
 
 </br>
-
-If you've managed to drive one of the LEDs with a PWM instance and set up the .overlay file as described you can now either choose to do the optional Method 1, which will show you how to create a custom PWM device and select which GPIO it should drive through the means of using the pwm_led compatible and pin control, or to continue directly to Method 2, which will show you how to do the same *but* by defining and creating your own custom device through a .yaml. I personally recommend you to do method 2 and if you have time you can go through the steps to do method 1.
-
 If you're struggling at this point in time, please feel free to have a look at the solution for this point in time located in the [temp_files\Step_3.0_sol](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.0_sol). This partial solution also works as a jump start for both method 2 and the optional steps for method 1.
 
-#### Method 1 - Optional steps: Modify the pwm_led0 instance to drive the servo motor
-This part is to showcase how you can reconfigure existing peripheral devices such as the predefined pwm_led0 instance to something else. It is a section that is defined to break apart some of the abstraction layers that comes with overlayfiles and devicetree, but if you're not up for the challenge it is also completely fine to move on to Method 2. I do however recommend that you give it a try and see if you're able to go through it since it should give you some deeper understanding over how devices and peripherals works in NCS. We should have plenty of time for you to go through both methods.
+If you've managed to drive one of the LEDs with a PWM instance and set up the .overlay file as described you can now either choose to do the optional method 1, or to continue directly to Method 2, which the solution in Step 4 and has used. I personally recommend you to do method 2 and if you have time you can go through the steps to do method 1 starting from either a copy of your project at this point in time, or by starting from the project in Step_3.0_sol. 
+
+Method 1 will show you how to create a custom PWM device and select which GPIO it should drive through the means of using the pwm_led compatible and pin control that is predefined. Method 2 will show you how to do the same *but* by defining and creating your own custom device through a .yaml, similar to the pwm-leds.yaml found in the SDK.
+
+### Method 1 - Optional steps: Modify the pwm_led0 instance to drive the servo motor
+This part is to showcase how you can reconfigure existing peripheral devices such as the predefined pwm_led0 instance to something else. It is a section that is defined to break apart some of the abstraction layers that comes with overlayfiles and devicetree.
 
 Now to the steps for how to do this: If you open your nrf52840dk_nrf52840.dts, which is our standard board file, we can see what pwm_led0 looks like by default:
 
@@ -694,7 +697,7 @@ Use this to set different angles, depending on what button you pressed.
 If you are having problems with controlling the motors, you can have a look at what my motor_control.h and motor_control.c looks like at this point in time in [the solution for step 3, method 1](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_3.1_sol).
 
 
-#### Method 2 - Create a custom motor device and use the PWM module to drive a motor
+### Method 2 - Create a custom motor device and use the PWM module to drive a motor
 For this method we will be using what is called a .yaml file to define our new custom device. This file is will be similar to what I showed you earlier for the [`pwm-leds.yaml`](https://github.com/nrfconnect/sdk-zephyr/blob/main/dts/bindings/led/pwm-leds.yaml)
 
 Create a new folder in your project called `"dts"` and within this folder create a new folder named `"bindings"`. Inside `"bindings"` create a file named `"pwm-servo.yaml"`. Inside `pwm-servo.yaml` add the following:
@@ -982,10 +985,10 @@ What we do here is:
 
 For most Bluetooth Low Energy, these four headers and these configurations will do the job. 
 
-Let us start by finding a function to *enable bluetooth*. Inspect [The Generic Access Profile API](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html) and see if you find it. *(Hint: It is [this one](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable)).
+Let us start by finding a function to *enable bluetooth*. Inspect [The Generic Access Profile API](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gap.html) and see if you find it. *(Hint: It is [this one](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable)).
 
 <br>
-If you've found https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_enable, we can see by inspecting it that this is a function that returns an int and it takes an input `bt_ready_cb_t. Follow the definition of [bt_ready_cb_t](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_ready_cb_t) you will see that the bt_ready_cb_t is defined as follows:
+If you've found the function, we can see by inspecting it that this is a function that returns an int and it takes an input `bt_ready_cb_t. Follow the definition of [bt_ready_cb_t](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gap.html#c.bt_ready_cb_t) you will see that the bt_ready_cb_t is defined as follows:
 
 ```C
 typedef void (*bt_ready_cb_t)(int err)
@@ -1257,6 +1260,7 @@ However, a service without any characteristics isn't very impressive. Let us add
 I called my handle BT_UUID_REMOTE_BUTTON_CHRC. Whatever you call it, we will now add it to our service macro:
 
 ```C
+/* Add this to the service macro we previously defined in remote.c */
 BT_GATT_SERVICE_DEFINE(remote_srv,
 BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
     BT_GATT_CHARACTERISTIC(BT_UUID_REMOTE_BUTTON_CHRC,
@@ -1265,13 +1269,14 @@ BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
                     read_button_characteristic_cb, NULL, NULL),
 );
 ```
+Note that the read_button_characteristic_cb is undefined at this point in time. We will implement this callback in the next few sections of the hands on.
 
 What we are doing here is saying that we want to add a characteristic to our service using the UUID that we just defined. We claim that it is possible to read it, and then we give it the permission to be read. The read_button_characteristic is a callback that is triggered whenever someone is reading our characteristic. The first NULL is the callback for when someone is writing to our characteristic, which will never happen since it is not possible to write to this characteristic. The last NULL is the actual value. We will set that later. 
 </br>
 
-First we need to implement the `read_button_characteristic_cb` callback function. It is a bit tricky to navigate to the callback definition of this macro, but if you look in `gatt.h`, where the [`BT_GATT_CHARACTERISTIC`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHARACTERISTIC) macro is defined, and search for "[`struct bt_gatt_attr`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.bt_gatt_attr)" then this will hold the callbacks that we will use for read, and later for write callbacks. </br>
+Now we need to implement the `read_button_characteristic_cb` callback function. It is a bit tricky to navigate to the callback definition of this macro, but if you look in `gatt.h`, where the [`BT_GATT_CHARACTERISTIC`](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHARACTERISTIC) macro is defined, and search for "[`struct bt_gatt_attr`](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gatt.html#c.bt_gatt_attr)" then this will hold the callbacks that we will use for read, and later for write callbacks. </br>
 
-So we see that the read callback should look something like [bt_gatt_attr_read_func_t](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.bt_gatt_attr_read_func_t), i.e something like:
+So we see that the read callback should look something like [bt_gatt_attr_read_func_t](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gatt.html#c.bt_gatt_attr_read_func_t), i.e something like:
 
 ```C
 typedef ssize_t (*read)(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset)
@@ -1309,8 +1314,7 @@ Now, try to connect to your device using nRF Connect, and see that you have a ch
 
 </br>
 
-If you are stuck you can have a look at the [partial solution for this step](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_4.2
-_sol)
+If you are stuck you can have a look at the [partial solution for this step](https://github.com/aHaugl/OV_Orbit_BLE_Course/tree/main/temp_files/Step_4.2_sol)
 
 </br>
 
@@ -1329,11 +1333,11 @@ BT_GATT_PRIMARY_SERVICE(BT_UUID_REMOTE_SERVICE),
 );
 ```
 
-**Note that we added  |[`BT_GATT_CHRC_NOTIFY`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHRC_NOTIFY) on the line that previously just said [`BT_GATT_CHRC_READ`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHRC_READ).**
+**Note that we added  |[`BT_GATT_CHRC_NOTIFY`](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHRC_NOTIFY) on the line that previously just said [`BT_GATT_CHRC_READ`](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHRC_READ).**
 
 The first parameter is a callback that is triggered whenever someone writes to the CCC. The last parameter is the read/write permissions. Here we allow the central to both read and write to this configuration. This means that it can check whether or not notifications are enabled, and enable/disable it. Please note that we also added the `BT_GATT_CHRC_NOTIFY` in our properties for the characteristic itself, as we are now adding the possiblilty to enable notifications.
 
-In a similar way to what we did earlier, we can use the BT_GATT_CCC macro definition to find the expected type of callback. See if you can find it in gatt.h or in the [GATT API documentation pages](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHRC_READ) </br></br>
+In a similar way to what we did earlier, we can use the BT_GATT_CCC macro definition to find the expected type of callback. See if you can find it in gatt.h or in the [GATT API documentation pages](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gatt.html#c.BT_GATT_CHRC_READ) </br></br>
 *Hint: it is a callback that is called whenever the CCC has changed*
 </br></br>
 The implementation of this callback itself is not that complex. We don't have to return anything. We'll just log that notifications were either enabled or disabled. 
@@ -1401,6 +1405,12 @@ Then inside bluetooth_init() in remote.c we will first check that they are not N
     remote_service_callbacks.notif_changed = remote_cb->notif_changed;
     ...
 ```
+And modify bluetooth_init() to also take &remote_cb as an argument, i.e match your existing bluetooth_init to the following
+
+```C
+int bluetooth_init(struct bt_conn_cb * bt_cb, struct bt_remote_service_cb *remote_cb)
+```
+Also remember to change the declaration in remote.h.
 
 now that we have this callback struct in remote.c, it means we can trigger the callback in main.c from remote.c. Add the following to button_chrc_ccc_cfg_changed():
 
@@ -1434,7 +1444,7 @@ void on_notif_changed(enum bt_button_notifications_enabled status)
 
 </br>
 Now we are only a few steps away from sending our very first notification (!!).
-Let us add a function, send_button_notification(), in remote.c that we can call from main.c (declare it in remote.h).
+Let us add a function, send_button_notification(), in remote.c that we can call from main.c (remember to declare it in remote.h). 
 
 ```C
 /* This code snippet belongs to remote.c */
@@ -1525,9 +1535,12 @@ Then we need to remember to populate this callback in bluetooth_init():
     remote_service_callbacks.data_received = remote_cb->data_received;
 ```
 
-Before we implement the callback in main, let us look at the callback in remote.c. As we saw in the start of this tutorial, it is a bit tricky to find the callback type for the write and read callbacks. Look for the definition of the "struct bt_gatt_attr" in gatt.h, and look at the `(*write)` type. There are a lot of parameters, so let us look into them:
+Before we implement the callback in main, let us look at the callback in remote.c. As we saw in the start of this tutorial, it is a bit tricky to find the callback type for the write and read callbacks. Look for the definition of the "struct bt_gatt_attr" in gatt.h, and look at the `(*write)` type. There are a lot of parameters, so let us look into them.
 
+You can see that there are a lot of parameters, but all we really need to do is to forward the important ones to our custom callback and return the length of the message (telling the stack that we have handled the entire message).
+To remote.c add the following:
 ```C
+/* This snippet belongs to remote.c*/
 static ssize_t on_write(struct bt_conn *conn,
 			  const struct bt_gatt_attr *attr,
 			  const void *buf,
@@ -1545,7 +1558,6 @@ static ssize_t on_write(struct bt_conn *conn,
 }
 ```
 
-You can see that there are a lot of parameters, but all we really need to do is to forward the important ones to our custom callback and return the length of the message (telling the stack that we have handled the entire message).
 
 Finally, in order to print the message in main.c, you can add the following:
 

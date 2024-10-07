@@ -1,12 +1,15 @@
+/* Step 4.2 - add remote.h*/
 #include "remote.h"
 
+
+/* Step 4.3 - Add logging */
 #define LOG_MODULE_NAME remote
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
+/* Step 4.9 - Create the semaphore */
 static K_SEM_DEFINE(bt_init_ok, 0, 1);
 
-
-
+/* Step 4.8 - Add bt_ready_callback CB*/
 void bt_ready_callback(int err)
 {
     if (err) {
@@ -15,7 +18,8 @@ void bt_ready_callback(int err)
     k_sem_give(&bt_init_ok);
 }
 
-int bluetooth_init()
+/* Step 4.5.2 - Implement bluetooth_init */
+int bluetooth_init(struct bt_conn_cb * bt_cb)
 {
     int err = 0;
     LOG_INF("Initializing Bluetooth");
