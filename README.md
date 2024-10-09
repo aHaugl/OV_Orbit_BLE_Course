@@ -1142,7 +1142,7 @@ To your bluetooth init, after you've taken the semaphore from bt_enable, add the
     }
 ```
 
-Now your device should advertise if you flash it with the latest build. Open nRF Connect for Desktop/iOS/Android and start scanning for the device. If there are many BLE devices nearby, try to sort by RSSI (Received Signal Strength Indicator), or ad a filter to the advertising name. 
+Now your device should advertise if you flash it with the latest build. Open nRF Connect for iOS or Android and start scanning for the device. If there are many BLE devices nearby, try to sort by RSSI (Received Signal Strength Indicator), or ad a filter to the advertising name. 
 
 Scan using nRF Connect for Mobile (Android) | Listed UUIDs | 
 ------------ | ------------ |
