@@ -2,7 +2,7 @@
 # Bluetooth_Low_Energy_Introduction
 
 **Prerequisites:** 
-* Make sure that you have a laptop with OS preferably within Tier 1 support range from the supported OS matrix found at https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/recommended_versions.html. 
+* Make sure that you have a laptop with OS preferably within Tier 1 support range from the supported OS matrix found at https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/recommended_versions.html#supported_operating_systems. 
 
 * Read through the first lesson of nRF Connect SDK fundamentals https://academy.nordicsemi.com/courses/nrf-connect-sdk-fundamentals/lessons/lesson-1-nrf-connect-sdk-introduction/topic/nrf-connect-sdk-structure-and-content/
 
@@ -230,7 +230,7 @@ void my_callback_function(uint8_t my_8_bit_parameter, uint16_t my_16_bit_paramet
 </br>
 
  **Challenge:** </br>
-***Without peeking at the solution below, try to implement your button handler so that it stores the button number of the button that was pressed, and prints it in the log only when the button was pressed (and not released). Try printing out the parameters `button_state` and `has_changed` to see what they look like when you press the buttons. The library we're using contains a [button_handler callback function](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html#c.button_handler_t) that can be used***
+***Without peeking at the solution below, try to implement your button handler so that it stores the button number of the button that was pressed, and prints it in the log only when the button was pressed (and not released). Try printing out the parameters `button_state` and `has_changed` to see what they look like when you press the buttons. The library we're using contains a [button_handler callback function](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/nrf/libraries/others/dk_buttons_and_leds.html#c.button_handler_t) that can be used***
 </br>
 
 </br>
