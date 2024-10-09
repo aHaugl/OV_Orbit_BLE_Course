@@ -1074,9 +1074,9 @@ where I set the two last bytes of the first section to 0001. This is so it is ea
 ```
 These are just two ways to define the same UUID, which we will use later. Now, open remote.c, and let us look into how we can start advertising.
 
-If you inspect the GAP API you will find [bt_le_adv_start](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#group__bt__gap_1gad2e3caef88d52d720e8e4d21df767b02), which is, as the function name states, the function we need to start advertising. It sets advertisement data, scan respons data, advertisement parameters and finally it starts advertising.
+If you inspect the GAP API you will find [bt_le_adv_start](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gap.html#c.bt_le_adv_start), which is, as the function name states, the function we need to start advertising. It sets advertisement data, scan respons data, advertisement parameters and finally it starts advertising.
 
-The advertisement data and scan response data needs to be defined as a [bt_data struct](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data) constructed in a certain way. In addition we will use `CONFIG_BT_DEVICE_NAME` which we've already defined to advertise our devices name.
+The advertisement data and scan response data needs to be defined as a [bt_data struct](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data) constructed in a certain way. In addition we will use `CONFIG_BT_DEVICE_NAME` which we've already defined to advertise our devices name.
 
 Add this a suitable place, near the top, in remote.c:
 
@@ -1086,12 +1086,12 @@ Add this a suitable place, near the top, in remote.c:
 ```
 and open prj.conf and replace the name of 
 
-*[CONFIG_BT_DEVICE_NAME](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_BT_DEVICE_NAME).="Remote_controller"*
+*[CONFIG_BT_DEVICE_NAME](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/kconfig/index.html#CONFIG_BT_DEVICE_NAME).="Remote_controller"*
 
 with something custom for your device.
 
 ### Prepare the advertise packet
-Declare an array `ad[]` and `sd[]` of type [struct bt_data](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data). It should look like this
+Declare an array `ad[]` and `sd[]` of type [struct bt_data](https://docs.nordicsemi.com/bundle/ncs-2.6.2/page/zephyr/connectivity/bluetooth/api/gap.html#c.bt_data). It should look like this
 
 
 ```C
