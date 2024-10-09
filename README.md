@@ -1179,7 +1179,11 @@ Near top of main.c (after bluetooth_callbacks struct) add the following:
 
 ```C
 /* Near top of main.c (after bluetooth_callbacks struct) */
+
 static struct bt_conn *current_conn;    // Used to keep track of current connection status.
+/* Declaration of on_connected and on_disconnected
+void on_connected(struct bt_conn *conn, uint8_t err);
+void on_disconnected(struct bt_conn *conn, uint8_t reason);
 
 /* Callbacks, also in main.c: */
 
