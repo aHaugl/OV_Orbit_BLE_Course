@@ -1007,7 +1007,7 @@ void bt_ready(int err)
 
 One important aspect when it comes to initializing, enabling and in general running time critical code is that we want to ensure that everything has enough time to finish before we race on to the next part of the code. To do this we can use a [semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html).
 
-At the top of this page you can see 2 key properties of the semaphore and 3 criterias for how to use it and where to use it. Most of might already know what a semaphore is already, but read through the concept before moving on anyways to refresh this topic and to see how it is used in NCS/Zephyr.
+At the top of this page you can see 2 key properties of the semaphore and 3 criterias for how to use it and where to use it. Most of you might already know what a semaphore is already, but read through the concept before moving on anyways to refresh this topic and to see how it is used in NCS/Zephyr.
 
 Moving back to why we want to do this: We want to wait for our callback before we continue with our application. In order to do this, we will as mentioned use a semaphore. [Define the semaphore](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/kernel/services/synchronization/semaphores.html#defining-a-semaphore) near the top of remote.c:
 
