@@ -1483,7 +1483,7 @@ Now try to call this function from the button handler, check the return value an
 ## Step 7 - Writing Back to our Peripheral
 So now we can send button presses from our remote to our phone. Pretty cool. But since we have a wireless device connected to our phone, and this device has a motor connected to it, it would be nice to be able to control the motor from the phone, right? For this we could use the same characteristic that we already have to send communications both ways, but let us create a new characteristic for this purpose.
 
-**Todo:**</br>
+**Challenge:**</br>
 ***Add a third UUID where you increment the byte that we did for the previous UUID once more. Call the UUID BT_UUID_REMOTE_MESSAGE_CHRC_VAL and call the characteristic handle BT_UUID_REMOTE_MESSAGE_CHRC***
 
 Let us add the new characteristic to our service macro:
